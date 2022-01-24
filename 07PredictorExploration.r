@@ -16,6 +16,17 @@
 ## IntData/pred_wide.csv
 
 ## Output:
+## IntData/missing_partid.csv
+
+## Comments: This file is maybe something that shouldn't be run independently,
+## it shows how I did EDA on the predictor variables and handled missingness.
+## With every predictor variable, I came up with a programatic way to identify
+## the PARTID that needed an update for that variable or was missing. The
+## updates were handled in-line, and the ones that were being removed were
+## collected under varname_missing_partid. Each variable's missing list was
+## joined into missing_partid, which was then exported as a single column .csv
+## file. This .csv then allows future analysis to drop all the partids that we
+## identify in this exploration.
 
 ################################################################################
 
