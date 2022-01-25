@@ -45,7 +45,7 @@ partid_missing_demo <- read_csv(
 
 
 ### Score IES
-
+## rubric: http://www.clintools.com/victims/resources/assessment/ptsd/ies.html
 #### Patient
 
 dat_p <- dat_p %>%
