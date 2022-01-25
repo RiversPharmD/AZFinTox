@@ -7,6 +7,7 @@
 
 ## Depends on:
 ## 06PredictorJoin.r
+## 00Functions.r
 ## tidyverse
 ## table1
 ## naniar
@@ -34,6 +35,7 @@
 library(table1)
 library(tidyverse)
 library(naniar)
+source("00Functions.r")
 
 ## Data In
 dat <- read_csv(file = "IntData/pred_wide.csv")
@@ -43,99 +45,7 @@ dat_long <- read_csv(file = "IntData/pred.csv")
 
 ### Factors
 
-#### Location
-dat$location <- factor(dat$location,
-  levels = c(1, 2),
-  labels = c("Duke", "SCCA")
-)
-
-#### Gender
-
-dat$gender <- factor(dat$gender,
-  levels = c(0, 1, 2),
-  labels = c(
-    "Male",
-    "Female", "Transgender"
-  )
-)
-
-#### Race
-
-dat$race <- factor(dat$race,
-  levels = c(1:6),
-  labels = c(
-    "AIAN",
-    "Asian",
-    "NHPI",
-    "Black",
-    "White",
-    "Multi"
-  )
-)
-#### Ethnicity
-
-dat$ethnicity <- factor(dat$ethnicity,
-  levels = c(0, 1),
-  labels = c(
-    "Non-Hispanic",
-    "Hispanic"
-  )
-)
-
-#### Education
-
-dat$education <- factor(dat$education,
-  levels = c(1:5),
-  labels = c(
-    "LTHS",
-    "HS",
-    "LTBA",
-    "BA",
-    "PostBA"
-  )
-)
-
-#### Marital
-dat$marital <- factor(dat$marital,
-  levels = c(1, 2),
-  labels = c("Married", "Partnered")
-)
-
-#### Income
-
-dat$income <- factor(dat$income,
-  levels = c(1:7),
-  labels = c(
-    "lt20k",
-    "20-39k",
-    "40-59k",
-    "60-79k",
-    "80-99k",
-    "100-120k",
-    "gt120k"
-  )
-)
-
-#### Children
-
-dat$children <- factor(dat$children,
-  levels = c(0, 1),
-  labels = c("No", "Yes")
-)
-
-#### Stage
-
-dat$stage <- factor(dat$stage,
-  levels = 0:9,
-  labels = c("2", "2A", "2B", "3", "3A", "3B", "3C", "4", "4A", "4B")
-)
-
-#### Source
-
-dat$source <- factor(dat$source,
-  levels = 0:1,
-  labels = c("Patient", "Caregiver")
-)
+dat <- label_factors(dat)
 
 ## Cast Table
 
@@ -163,10 +73,10 @@ dat_missing_demo <- dat %>%
   filter(is.na(gender) & is.na(race) & is.na(education) & is.na(marital))
 
 ### Pull out partID
-dat_missing_partid <- dat_missing_demo$partid
+vec_missing_partid <- dat_missing_demo$partid
 
 dat <- dat %>%
-  filter(!partid %in% dat_missing_partid)
+  filter(!partid %in% vec_missing_partid)
 ## Visualize again
 
 ### gg_miss_upset()
@@ -177,75 +87,213 @@ naniar::gg_miss_upset(dat, nsets = n_var_miss(dat))
 
 ### Filter out missing demos
 dat_long <- dat_long %>%
-  filter(!partid %in% dat_missing_partid)
+  filter(!partid %in% vec_missing_partid)
 
-### Slice data
-income <- dat_long %>%
-  filter(observation == "income")
+### Calculate income Discordance
 
-### Build discordance measure
+income_list <- discordance(
+  dat = dat_long,
+  x = "income"
+)
 
-income <- income %>%
-  mutate(inc_disc = case_when(
-    value_patient == value_caregiver ~ 0,
-    value_patient < value_caregiver ~ -1,
-    value_patient > value_caregiver ~ 1
-  ))
+### Align missingness
 
-### Summarize discordance measure
+dat_long <- align_missing(
+  dat = dat_long,
+  x = "income"
+)
 
-income_sum <- income %>%
-  group_by(inc_disc) %>%
-  count()
+### Align discordance
 
-### Rebuild income measure
-
-income <- income %>%
-  mutate(value_patient = if_else(is.na(value_patient) == T, value_caregiver,
-if_else(value_patient >= value_caregiver, value_patient,
-if_else(value_patient < value_caregiver, value_caregiver, value_patient)))) %>%
-mutate(value_caregiver = if_else(is.na(value_caregiver) == T, value_patient,
-if_else(value_caregiver >= value_patient, value_caregiver,
-if_else(value_caregiver < value_patient, value_patient, value_caregiver))))
+dat_long <- align_discordant(
+  dat = dat_long,
+  x = "income"
+)
 
 
-### (re)Build discordance measure
+### Recalculate discordance measure
 
-income <- income %>%
-  mutate(inc_disc = case_when(
-    value_patient == value_caregiver ~ 0,
-    value_patient < value_caregiver ~ -1,
-    value_patient > value_caregiver ~ 1
-  ))
+income_list <- discordance(
+  dat = dat_long,
+  x = "income"
+)
 
-### (re)Summarize discordance measure
-
-income_sum <- income %>%
-  group_by(inc_disc) %>%
-  count()
 ### extract income missing partids
-income_missing <- income %>%
-filter(is.na(inc_disc))
-
-income_missing_partid <- income_missing$partid
+income_missing <- extract_missing(
+  dat = income_list[[1]],
+  x = disc
+)
 
 ## Children
 ### This is the other variable where the partners should have answered the same,
 ### as it is # of kids in house. Will assign 1 if either partner has 1. Should
 ### do sensitivity analysis to check this assumption
 
-### Slice data
+### Filter out missing demographics
 
-children <- dat_long %>%
-filter(observation == "children")
+vec_missing_partid <- c(income_missing, vec_missing_partid)
 
-### Build Discordance
+dat_long <- dat_long %>%
+  filter(!partid %in% vec_missing_partid)
 
-children <- children %>%
-  mutate(child_disc = case_when(
-    value_patient == value_caregiver ~ 0,
-    value_patient < value_caregiver ~ -1,
-    value_patient > value_caregiver ~ 1
-  ))
+### Calculate Discordance
 
-### Summarize discordance
+children_list <- discordance(
+  dat = dat_long,
+  x = "children"
+)
+
+### Align missing
+
+dat_long <- align_missing(
+  dat = dat_long,
+  x = "children"
+)
+
+dat_long <- align_discordant(
+  dat = dat_long,
+  x = "children"
+)
+
+### Recalculate Discordance
+
+children_list <- discordance(
+  dat = dat_long,
+  x = "children"
+)
+
+### Extract Missing partids
+children_missing <- extract_missing(
+  dat = children_list[[1]],
+  x = disc
+)
+
+## Re-widen data to check for missingness again
+
+### Drop missingness
+
+vec_missing_partid <- c(children_missing, vec_missing_partid)
+
+dat_long <- dat_long %>%
+  filter(!partid %in% vec_missing_partid)
+
+### Split Data Again
+pat <- dat_long %>%
+  select(-value_caregiver)
+
+care <- dat_long %>%
+  select(-value_patient)
+
+### Widen
+pat_wide <- pat %>%
+  pivot_wider(
+    names_from = observation,
+    values_from = value_patient
+  ) %>%
+  mutate(source = 0)
+
+care_wide <- care %>%
+  pivot_wider(
+    names_from = observation,
+    values_from = value_caregiver
+  ) %>%
+  mutate(source = 1)
+
+### Rejoin
+dat_wide <- pat_wide %>%
+rbind(care_wide)
+
+
+## Look at missingness
+
+### gg_miss_upset()
+
+naniar::gg_miss_upset(dat_wide, nsets = n_var_miss(dat_wide))
+
+## Marital Status
+
+## There are 4 dyads with an individual missing marital status
+
+### Calculate discordance
+
+marital_list <- discordance(dat = dat_long,
+x = "marital")
+
+### align missingness
+
+dat_long <- align_missing(dat = dat_long,
+x = "marital")
+
+### Align discordance
+
+dat_long <- align_discordant(dat = dat_long, x = "marital")
+
+### Recalculate discordance
+
+marital_list <- discordance(dat = dat_long,
+x = "marital")
+
+### Split Data Again
+pat <- dat_long %>%
+  select(-value_caregiver)
+
+care <- dat_long %>%
+  select(-value_patient)
+
+### Widen
+pat_wide <- pat %>%
+  pivot_wider(
+    names_from = observation,
+    values_from = value_patient
+  ) %>%
+  mutate(source = 0)
+
+care_wide <- care %>%
+  pivot_wider(
+    names_from = observation,
+    values_from = value_caregiver
+  ) %>%
+  mutate(source = 1)
+
+### Rejoin
+dat_wide <- pat_wide %>%
+rbind(care_wide)
+
+## Look at missingness
+
+### gg_miss_upset()
+
+naniar::gg_miss_upset(dat_wide, nsets = n_var_miss(dat_wide))
+
+## Create final drop list
+
+### find all variables with a NA left
+
+dat_wide <- dat_wide %>%
+mutate(count_na = rowSums(is.na(.)))
+
+### Select the rows where count_na is larger than 0
+dat_missing <- dat_wide %>%
+filter(count_na > 0)
+
+### Pull unique partids
+
+vec_other_missing <- unique(dat_missing$partid)
+
+### Join with other drop list
+
+vec_missing_partid <- unique(c(vec_missing_partid, vec_other_missing))
+
+### apply drop list to long and wide datasets
+
+dat_long <- dat_long %>%
+filter(!partid %in% vec_missing_partid)
+
+dat_wide <- dat_wide %>%
+filter(!partid %in% vec_missing_partid)
+
+## Data out
+
+write_csv(dat_long, "IntData/dat_long.csv")
+write_csv(dat_wide, "IntData/dat_wide.csv")
+write_csv(as_tibble(vec_missing_partid), "IntData/partid_missing_demo.csv")
