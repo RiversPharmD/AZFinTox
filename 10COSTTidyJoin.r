@@ -10,6 +10,7 @@
 ## Inputs:
 ## IntData/facitcost_pat.csv
 ## IntData/facitcost_care.csv
+## IntData/partid_missing_demo.csv
 
 ## Outputs:
 ## IntData/cost.csv
@@ -37,6 +38,10 @@ cost_p <- read_csv(
 cost_c <- read_csv(
   file = "IntData/facitcost_care.csv"
 )
+
+partid_missing_demo <- read_csv(
+  file = "IntData/partid_missing_demo.csv"
+)$value
 ## Data Tidy
 
 ### Recode
@@ -115,6 +120,11 @@ cost_narrow_c <- cost_c %>%
 
 cost <- cost_narrow_p %>%
   left_join(cost_narrow_c, by = c("partid", "redcap_event_name"))
+
+#### Drop the ones with missing predictors
+
+cost <- cost %>%
+filter(!partid %in% partid_missing_demo)
 
 ### Create concordance variable
 
