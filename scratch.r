@@ -92,3 +92,54 @@ ggplot(
   if_else(age < 50, "40-49",)))) %>%
   group_by(age) %>%
   count()
+
+  ## Align: This function takes the long dataset and a specific observation as
+  ## inputs, checks for partner concordance, and creates concordance. It uses the
+  ## max argument to decide if it should set partner values to the max of both. If
+  ## max is T, then it will set them both to max. If max is F, then it sets them
+  ## both to the minimum
+  align <- function(dat, x, max = TRUE) {
+
+ ## Dependencies
+   library(dplyr)
+
+ ifelse(max == TRUE,
+
+   ## True
+   dat <- dat %>%
+   mutate(value_patient = if_else(observation == x,
+     if_else(is.na(value_patient) == T, value_caregiver,
+       if_else(value_patient >= value_caregiver, value_patient,
+         if_else(value_patient < value_caregiver, value_caregiver, value_patient
+                 )
+               )
+             ), value_patient
+   )
+ ) %>%
+   mutate(value_caregiver = if_else(observation == x,
+     if_else(is.na(value_caregiver) == T, value_patient,
+       if_else(value_caregiver >= value_patient, value_caregiver,
+         if_else(value_caregiver < value_patient, value_patient, value_caregiver)
+       )
+     ), value_caregiver
+   )),
+ ## False
+ dat <- dat %>%
+  mutate(value_patient = if_else(observation == x,
+    if_else(is.na(value_patient) == T, value_caregiver,
+      if_else(value_patient <= value_caregiver, value_patient,
+        if_else(value_patient > value_caregiver, value_caregiver, value_patient)
+      )
+    ), value_patient
+  )) %>%
+  mutate(value_caregiver = if_else(observation == x,
+    if_else(is.na(value_caregiver) == T, value_patient,
+      if_else(value_caregiver <= value_patient, value_caregiver,
+        if_else(value_caregiver > value_patient, value_patient, value_caregiver)
+      )
+    ), value_caregiver
+  )))
+
+  ## Return
+  return(dat)
+ }
