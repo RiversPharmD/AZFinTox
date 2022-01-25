@@ -42,7 +42,9 @@ demo_partid <- demo$partid
 dat <- demo %>%
   rbind(comor) %>%
   rbind(dz) %>%
-  arrange(partid)
+  arrange(partid)%>%
+  filter(partid %in% demo_partid)
+
 
 
 ## Make Wide
