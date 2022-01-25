@@ -3,11 +3,14 @@
 ### Clean and Tidy Data
 
 #### Missingness
+Three values assessed household characteristics: Marital Status, Household
+Income, and Presence or Absence of Children. If these were missing for only one
+individual in a dyad, the other individual's response was used.
 
 #### Discordant Responses
-Partners were given two questions that asked them to assess household values. As
-such, they should be concordant across both responses. In cases where they were
-not, the larger of two values was selected and assigned to both partners.
+Partners were given three questions that asked them to assess household values.
+As such, they should be concordant across both responses. In cases where they
+were not, the larger of two values was selected and assigned to both partners.
 
 ### Create New Variables
 
