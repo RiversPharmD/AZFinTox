@@ -4355,8 +4355,6 @@ partid,observation,value_patient,value_caregiver
 2194,comorbid_sum,NA,4
 2194,DX,Colon,Colon
 2194,stage,7,7
-2195,DX,Colon,Colon
-2195,stage,7,7
 2196,age,36,39
 2196,gender,1,0
 2196,ethnicity,0,0
