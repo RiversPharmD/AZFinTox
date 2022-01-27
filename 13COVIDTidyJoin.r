@@ -1,5 +1,5 @@
 ###############################################################################
-## Purpose: this file loads IES survey data
+## Purpose: this file loads COVID survey data
 ## from each timepoint, cleans it, and outputs a joined dataset.
 
 ## Depends:
@@ -8,12 +8,12 @@
 ## tidyverse
 
 ## Inputs:
-## IntData/ies_pat.csv
-## IntData/ies_care.csv
+## IntData/covid_pat.csv
+## IntData/covid_care.csv
 ## IntData/partid_missing_demo.csv
 
 ## Outputs:
-## IntData/ies.csv
+## IntData/covid.csv
 
 ###############################################################################
 
@@ -29,13 +29,13 @@ library(tidyverse)
 ### Patient
 
 dat_p <- read_csv(
-  file = "IntData/ies_pat.csv"
+  file = "IntData/covid_pat.csv"
 )
 
 ### Caregiver
 
 dat_c <- read_csv(
-  file = "IntData/ies_care.csv"
+  file = "IntData/covid_care.csv"
 )
 
 partid_missing_demo <- read_csv(
@@ -43,21 +43,20 @@ partid_missing_demo <- read_csv(
 )$value
 ## Data Tidy
 
-
-### Score IES
-## rubric: http://www.clintools.com/victims/resources/assessment/ptsd/ies.html
+### Score COVID
+## rubric: Unsure
 #### Patient
 
 dat_p <- dat_p %>%
   rowwise() %>% ## swaps it so I can mutate this way
-  mutate(sum_p = sum(c_across(ies01:ies15))) %>%
+  mutate(covid_sum_p = sum(c_across(covid01:covid09))) %>%
   ungroup()
 
 #### Caregiver
 
 dat_c <- dat_c %>%
   rowwise() %>% ## swaps it so I can mutate this way
-  mutate(sum_c = sum(c_across(ies01:ies15))) %>%
+  mutate(covid_sum_c = sum(c_across(covid01:covid09))) %>%
   ungroup()
 ### Merge datasets
 
@@ -66,11 +65,11 @@ dat_c <- dat_c %>%
 ##### Patient
 
 dat_narrow_p <- dat_p %>%
-  select(partid, redcap_event_name, sum_p)
+  select(partid, redcap_event_name, covid_sum_p)
 
 ##### Caregiver
 dat_narrow_c <- dat_c %>%
-  select(partid, redcap_event_name, sum_c)
+  select(partid, redcap_event_name, covid_sum_c)
 
 #### Create COST dataset
 
@@ -87,8 +86,7 @@ filter(!partid %in% partid_missing_demo)
 #### Directional
 
 dat <- dat %>%
-  mutate(con_dir = (sum_p - sum_c))
-
+  mutate(covid_con_dir = (covid_sum_p - covid_sum_c))
 
   dat <- dat %>%
   pivot_longer(
@@ -96,9 +94,9 @@ dat <- dat %>%
       names_to = "observation",
       values_to = "score"
     ) %>%
-    mutate(survey = "IES") %>%
+    mutate(survey = "COVID") %>%
     select(partid, redcap_event_name,survey,observation,score)
 
 ## Data out
 
-write_csv(dat, file = "IntData/ies.csv")
+write_csv(dat, file = "IntData/covid.csv")

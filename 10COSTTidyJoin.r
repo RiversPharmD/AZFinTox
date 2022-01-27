@@ -134,10 +134,6 @@ dat <- dat %>%
   mutate(con_dir = (sum_p - sum_c))
 
 
-#### Absolute
-
-dat <- dat %>%
-  mutate(con_abs = abs(con_dir))
 
 ### Lengthen and add survey type
 

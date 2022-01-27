@@ -83,14 +83,14 @@ dat_c <- dat_c %>%
 
 dat_p <- dat_p %>%
   rowwise() %>% ## swaps it so I can mutate this way
-  mutate(cesd_sum_p = sum(c_across(cesd01:cesd10))) %>%
+  mutate(sum_p = sum(c_across(cesd01:cesd10))) %>%
   ungroup()
 
 #### Caregiver
 
 dat_c <- dat_c %>%
   rowwise() %>% ## swaps it so I can mutate this way
-  mutate(cesd_sum_c = sum(c_across(cesd01:cesd10))) %>%
+  mutate(sum_c = sum(c_across(cesd01:cesd10))) %>%
   ungroup()
 ### Merge datasets
 
@@ -99,11 +99,11 @@ dat_c <- dat_c %>%
 ##### Patient
 
 dat_narrow_p <- dat_p %>%
-  select(partid, redcap_event_name, cesd_sum_p)
+  select(partid, redcap_event_name, sum_p)
 
 ##### Caregiver
 dat_narrow_c <- dat_c %>%
-  select(partid, redcap_event_name, cesd_sum_c)
+  select(partid, redcap_event_name, sum_c)
 
 #### Create COST dataset
 
@@ -120,13 +120,20 @@ filter(!partid %in% partid_missing_demo)
 #### Directional
 
 dat <- dat %>%
-  mutate(cesd_con_dir = (cesd_sum_p - cesd_sum_c))
+  mutate(con_dir = (sum_p - sum_c))
+
+  ### Lengthen and add survey type
+
+  dat <- dat %>%
+  pivot_longer(
+      cols = !partid:redcap_event_name,
+      names_to = "observation",
+      values_to = "score"
+    ) %>%
+    mutate(survey = "CESD") %>%
+    select(partid, redcap_event_name,survey,observation,score)
 
 
-#### Absolute
-
-dat <- dat %>%
-  mutate(cesd_con_abs = abs(cesd_con_dir))
 
 ## Data out
 
