@@ -1,5 +1,5 @@
 ###############################################################################
-## Purpose: this file loads COST survey data
+## Purpose: this file loads POMS survey data
 ## from each timepoint, cleans it, and outputs a joined dataset.
 
 ## Depends:
@@ -8,12 +8,12 @@
 ## tidyverse
 
 ## Inputs:
-## IntData/facitcost_pat.csv
-## IntData/facitcost_care.csv
+## IntData/poms_pat.csv
+## IntData/poms_care.csv
 ## IntData/partid_missing_demo.csv
 
 ## Outputs:
-## IntData/cost.csv
+## IntData/poms.csv
 
 ###############################################################################
 
@@ -30,13 +30,13 @@ source(file = "00Functions.r"
 ### Patient
 
 dat_p <- read_csv(
-  file = "IntData/facitcost_pat.csv"
+  file = "IntData/poms_pat.csv"
 )
 
 ### Caregiver
 
 dat_c <- read_csv(
-  file = "IntData/facitcost_care.csv"
+  file = "IntData/poms_care.csv"
 )
 
 partid_missing_demo <- read_csv(
@@ -48,44 +48,36 @@ partid_missing_demo <- read_csv(
 
 #### Patient
 
-##### Subtracted 1 from all scores to match actual FACIT-COST
 
-dat_p <- dat_p %>%
-  mutate(across(matches("facit_cost"), shift_left))
-
-##### Per rubric, 2,3,4,5,8,9, and 10 are reverse scored
+##### Per rubric, 1, 5, 7, 9, 11, 17, 24, 29, 32, and 35 are reverse scored
 
 dat_p <- dat_p %>%
   mutate(across(
-    matches(c("02", "03", "04", "05", "08", "09", "10")),
+    matches(c("01", "05", "07", "09", "11", "17", "24", "29", "32", "35")),
     ~ case_when(
-      . == 0 ~ 4,
-      . == 1 ~ 3,
-      . == 2 ~ 2,
-      . == 3 ~ 1,
-      . == 4 ~ 0
+      . == 1 ~ 5,
+      . == 2 ~ 4,
+      . == 3 ~ 3,
+      . == 4 ~ 2,
+      . == 5 ~ 1
     )
   ))
 #### Caregiver
 
-##### Subtracted 1 from all scores to match actual FACIT-COST
+
+##### Per rubric, 1, 5, 7, 9, 11, 17, 24, 29, 32, and 35 are reverse scored
 
 dat_c <- dat_c %>%
-  mutate(across(matches("facit_cost"), shift_left))
-
-##### Per rubric, 2,3,4,5,8,9, and 10 are reverse scored
-
-dat_c <- dat_c %>%
-  mutate(across(
-    matches(c("02", "03", "04", "05", "08", "09", "10")),
-    ~ case_when(
-      . == 0 ~ 4,
-      . == 1 ~ 3,
-      . == 2 ~ 2,
-      . == 3 ~ 1,
-      . == 4 ~ 0
-    )
-  ))
+mutate(across(
+  matches(c("01", "05", "07", "09", "11", "17", "24", "29", "32", "35")),
+  ~ case_when(
+    . == 1 ~ 5,
+    . == 2 ~ 4,
+    . == 3 ~ 3,
+    . == 4 ~ 2,
+    . == 5 ~ 1
+  )
+))
 
 
 ### Score COST
@@ -94,14 +86,14 @@ dat_c <- dat_c %>%
 
 dat_p <- dat_p %>%
   rowwise() %>% ## swaps it so I can mutate this way
-  mutate(sum_p = sum(c_across(facit_cost01:facit_cost11))) %>%
+  mutate(sum_p = sum(c_across(poms01:poms35))) %>%
   ungroup()
 
 #### Caregiver
 
 dat_c <- dat_c %>%
   rowwise() %>% ## swaps it so I can mutate this way
-  mutate(sum_c = sum(c_across(facit_cost01:facit_cost11))) %>%
+  mutate(sum_c = sum(c_across(poms01:poms35))) %>%
   ungroup()
 ### Merge datasets
 
@@ -147,9 +139,9 @@ pivot_longer(
     names_to = "observation",
     values_to = "score"
   ) %>%
-  mutate(survey = "COST") %>%
+  mutate(survey = "POMS") %>%
   select(partid, redcap_event_name,survey,observation,score)
 
 ## Data out
 
-write_csv(dat, file = "IntData/cost.csv")
+write_csv(dat, file = "IntData/poms.csv")
