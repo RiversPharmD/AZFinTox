@@ -49,14 +49,14 @@ partid_missing_demo <- read_csv(
 
 dat_p <- dat_p %>%
   rowwise() %>% ## swaps it so I can mutate this way
-  mutate(covid_sum_p = sum(c_across(covid01:covid09))) %>%
+  mutate(sum_p = sum(c_across(covid01:covid09))) %>%
   ungroup()
 
 #### Caregiver
 
 dat_c <- dat_c %>%
   rowwise() %>% ## swaps it so I can mutate this way
-  mutate(covid_sum_c = sum(c_across(covid01:covid09))) %>%
+  mutate(sum_c = sum(c_across(covid01:covid09))) %>%
   ungroup()
 ### Merge datasets
 
@@ -65,11 +65,11 @@ dat_c <- dat_c %>%
 ##### Patient
 
 dat_narrow_p <- dat_p %>%
-  select(partid, redcap_event_name, covid_sum_p)
+  select(partid, redcap_event_name, sum_p)
 
 ##### Caregiver
 dat_narrow_c <- dat_c %>%
-  select(partid, redcap_event_name, covid_sum_c)
+  select(partid, redcap_event_name, sum_c)
 
 #### Create COST dataset
 
@@ -86,7 +86,7 @@ filter(!partid %in% partid_missing_demo)
 #### Directional
 
 dat <- dat %>%
-  mutate(covid_con_dir = (covid_sum_p - covid_sum_c))
+  mutate(con_dir = (sum_p - sum_c))
 
   dat <- dat %>%
   pivot_longer(
