@@ -180,3 +180,10 @@ tp1_cost_dyad_wide <- tp1_cost_dyad_long %>%
 #### Create Correlation table
 
 tp1_cost_dyad_cor <- creat_corr_table(dat = tp1_cost_dyad_wide)
+
+
+## Data Out
+
+path <- "IntData/CorrTables/"
+write_csv(x = tp1_cost_dyad_cor,
+file = paste0(path,"tp1_cost_dyad.csv"))
