@@ -105,7 +105,9 @@ dat_c <- dat_c %>%
   ungroup()
 ### Merge datasets
 
-#### Narrow to retain only sums
+
+
+#### Narrow datasets
 
 ##### Patient
 
@@ -116,11 +118,28 @@ dat_narrow_p <- dat_p %>%
 dat_narrow_c <- dat_c %>%
   select(partid, redcap_event_name, sum_c)
 
+#### Full datasets
+
+##### Patient
+dat_p <- dat_p %>%
+  select(partid:facit_cost11, "sum" = sum_p) %>%
+  mutate(src = "patient")
+
+##### Caregiver
+dat_c <- dat_c %>%
+    select(partid:facit_cost11, "sum" = sum_c) %>%
+    mutate(src = "caregiver")
+
+
 #### Create COST dataset
 
+##### Narrow
 dat <- dat_narrow_p %>%
   left_join(dat_narrow_c, by = c("partid", "redcap_event_name"))
 
+##### Full
+
+dat_full <- rbind(dat_p, dat_c)
 #### Drop the ones with missing predictors
 
 dat <- dat %>%
@@ -149,3 +168,4 @@ pivot_longer(
 ## Data out
 
 write_csv(dat, file = "IntData/cost.csv")
+write_csv(dat_full, file = "IntData/cost_full.csv")
