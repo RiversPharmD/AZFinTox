@@ -315,3 +315,24 @@ extract_missing <- function(dat, x) {
   ## returns vector
   return(vec)
 }
+
+import_partid <- function(timepoint,
+                          survey,
+                          obs_type = "dyad") {
+
+    ## create file name
+    file_name <- paste0(
+        "IntData/SurveyPartIDs/tp_",
+        timepoint, "_",
+        toupper(survey), "_",
+        obs_type,
+        ".csv"
+    )
+    ## read in data
+    dat <- readr::read_csv(file = file_name)
+
+    ## create vector
+    vec_partid <- dat$partid
+
+    return(vec_partid)
+}
