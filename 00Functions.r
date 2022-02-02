@@ -336,3 +336,17 @@ import_partid <- function(timepoint,
 
     return(vec_partid)
 }
+
+import_available_survey_data <- function(data, timepoint, survey, obs) {
+    dat_out <- data %>%
+        filter(
+            partid %in% import_partid(
+                timepoint = {{ timepoint }},
+                survey = {{ survey }},
+                obs_type = {{ obs }}
+            ),
+            redcap_event_name == timepoint
+        ) %>%
+        select(-redcap_event_name)
+    return(dat_out)
+}
