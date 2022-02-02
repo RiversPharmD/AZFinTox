@@ -120,9 +120,7 @@ facit_cost <- dat %>%
   select(
     partid,
     redcap_event_name,
-    facit_cost01:facit_cost11,
-    facit_cost01_rec:facit_cost11_rec,
-    facit_cost_mean
+    facit_cost01:facit_cost11
   )
 
 
