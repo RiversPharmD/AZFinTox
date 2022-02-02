@@ -98,19 +98,7 @@ creat_corr_table <- function(dat) {
     return(df)
 }
 
-import_available_survey_data <- function(data, timepoint, survey, obs) {
-    dat_out <- data %>%
-        filter(
-            partid %in% import_partid(
-                timepoint = {{ timepoint }},
-                survey = {{ survey }},
-                obs_type = {{ obs }}
-            ),
-            redcap_event_name == timepoint
-        ) %>%
-        select(-redcap_event_name)
-    return(dat_out)
-}
+
 
 lengthen_widen <- function(data, start_col, end_col, names = "question",
                            values = "score") {
