@@ -14,13 +14,13 @@
 
 ## Outputs:
 ## IntData/cost.csv
+## IntData/cost_full.csv
 
 ###############################################################################
 
 ## Packages
 library(tidyverse)
-source(file = "00Functions.r"
-)
+source(file = "00Functions.r")
 
 ## Functions
 
@@ -30,79 +30,75 @@ source(file = "00Functions.r"
 ### Patient
 
 dat_p <- read_csv(
-  file = "IntData/facitcost_pat.csv"
+    file = "IntData/facitcost_pat.csv"
 )
 
 ### Caregiver
 
 dat_c <- read_csv(
-  file = "IntData/facitcost_care.csv"
+    file = "IntData/facitcost_care.csv"
 )
 
 partid_missing_demo <- read_csv(
-  file = "IntData/partid_missing_demo.csv"
+    file = "IntData/partid_missing_demo.csv"
 )$value
 ## Data Tidy
 
-### Recode
+### Create list
+df_list <- list(dat_p, dat_c)
+df_list_scored <- list()
+### Loop Over List
 
-#### Patient
+for (i in seq_along(df_list)) {
 
-##### Subtracted 1 from all scores to match actual FACIT-COST
+    #### Patient
 
-dat_p <- dat_p %>%
-  mutate(across(matches("facit_cost"), shift_left))
+    ##### Subtracted 1 from all scores to match actual FACIT-COST
 
-##### Per rubric, 2,3,4,5,8,9, and 10 are reverse scored
+    dat <- df_list[[i]] %>%
+        mutate(across(matches("facit_cost"), shift_left))
 
-dat_p <- dat_p %>%
-  mutate(across(
-    matches(c("02", "03", "04", "05", "08", "09", "10")),
-    ~ case_when(
-      . == 0 ~ 4,
-      . == 1 ~ 3,
-      . == 2 ~ 2,
-      . == 3 ~ 1,
-      . == 4 ~ 0
-    )
-  ))
-#### Caregiver
+    ##### Per rubric, 2,3,4,5,8,9, and 10 are reverse scored
 
-##### Subtracted 1 from all scores to match actual FACIT-COST
+    dat <- dat %>%
+        mutate(across(
+            matches(c("02", "03", "04", "05", "08", "09", "10")),
+            ~ case_when(
+                . == 0 ~ 4,
+                . == 1 ~ 3,
+                . == 2 ~ 2,
+                . == 3 ~ 1,
+                . == 4 ~ 0
+            )
+        ))
 
-dat_c <- dat_c %>%
-  mutate(across(matches("facit_cost"), shift_left))
+    ##### Scores
+    dat <- dat %>%
+        rowwise() %>% ## swaps it so I can mutate this way
+        mutate(sum = sum(c_across(facit_cost01:facit_cost11))) %>%
+        ungroup()
 
-##### Per rubric, 2,3,4,5,8,9, and 10 are reverse scored
-
-dat_c <- dat_c %>%
-  mutate(across(
-    matches(c("02", "03", "04", "05", "08", "09", "10")),
-    ~ case_when(
-      . == 0 ~ 4,
-      . == 1 ~ 3,
-      . == 2 ~ 2,
-      . == 3 ~ 1,
-      . == 4 ~ 0
-    )
-  ))
+    ### Dichotomize COST
 
 
-### Score COST
+    dat <- dat %>%
+        mutate(cost_lgl = if_else(sum < 26, 1, 0))
 
-#### Patient
 
-dat_p <- dat_p %>%
-  rowwise() %>% ## swaps it so I can mutate this way
-  mutate(sum_p = sum(c_across(facit_cost01:facit_cost11))) %>%
-  ungroup()
+    ### Categorize COST
 
-#### Caregiver
+    dat <- dat %>%
+        mutate(cost_cat = case_when(
+            sum >= 26 ~ 0,
+            sum < 26 & sum >= 14 ~ 1,
+            sum < 14 & sum > 0 ~ 2,
+            sum == 0 ~ 3
+        ))
 
-dat_c <- dat_c %>%
-  rowwise() %>% ## swaps it so I can mutate this way
-  mutate(sum_c = sum(c_across(facit_cost01:facit_cost11))) %>%
-  ungroup()
+    df_list_scored[[i]] <- dat
+}
+
+
 ### Merge datasets
 
 
@@ -111,23 +107,29 @@ dat_c <- dat_c %>%
 
 ##### Patient
 
-dat_narrow_p <- dat_p %>%
-  select(partid, redcap_event_name, sum_p)
+dat_narrow_p <- df_list_scored[[1]] %>%
+    select(partid, redcap_event_name,
+        "sum_p" = sum,
+        "lgl_p" = cost_lgl,
+        "cat_p" = cost_cat
+    )
 
 ##### Caregiver
-dat_narrow_c <- dat_c %>%
-  select(partid, redcap_event_name, sum_c)
+dat_narrow_c <- df_list_scored[[2]] %>%
+    select(partid, redcap_event_name,
+        "sum_c" = sum,
+        "lgl_c" = cost_lgl,
+        "cat_c" = cost_cat
+    )
 
 #### Full datasets
 
 ##### Patient
-dat_p <- dat_p %>%
-  select(partid:facit_cost11, "sum" = sum_p) %>%
-  mutate(src = "patient")
+dat_p <- df_list_scored[[1]] %>%
+    mutate(src = "patient")
 
 ##### Caregiver
-dat_c <- dat_c %>%
-    select(partid:facit_cost11, "sum" = sum_c) %>%
+dat_c <- df_list_scored[[2]] %>%
     mutate(src = "caregiver")
 
 
@@ -135,7 +137,7 @@ dat_c <- dat_c %>%
 
 ##### Narrow
 dat <- dat_narrow_p %>%
-  left_join(dat_narrow_c, by = c("partid", "redcap_event_name"))
+    left_join(dat_narrow_c, by = c("partid", "redcap_event_name"))
 
 ##### Full
 
@@ -143,27 +145,38 @@ dat_full <- rbind(dat_p, dat_c)
 #### Drop the ones with missing predictors
 
 dat <- dat %>%
-filter(!partid %in% partid_missing_demo)
+    filter(!partid %in% partid_missing_demo)
 
 ### Create concordance variable
 
 #### Directional
 
 dat <- dat %>%
-  mutate(con_dir = (sum_p - sum_c))
-
+    mutate(
+        con_raw = sum_p - sum_c, ## Raw
+        con_dich = case_when(    ## Logical
+            lgl_p == lgl_c ~ 0,
+            lgl_p < lgl_c ~ 1,
+            lgl_p > lgl_c ~ 2
+        ),
+        con_cat = case_when(     ## Categorical
+            cat_p == cat_c ~ 0,
+            cat_p < cat_c ~ 1,
+            cat_p > cat_c ~ 2
+        )
+    )
 
 
 ### Lengthen and add survey type
 
 dat <- dat %>%
-pivot_longer(
-    cols = !partid:redcap_event_name,
-    names_to = "observation",
-    values_to = "score"
-  ) %>%
-  mutate(survey = "COST") %>%
-  select(partid, redcap_event_name,survey,observation,score)
+    pivot_longer(
+        cols = !partid:redcap_event_name,
+        names_to = "observation",
+        values_to = "score"
+    ) %>%
+    mutate(survey = "COST") %>%
+    select(partid, redcap_event_name, survey, observation, score)
 
 ## Data out
 
