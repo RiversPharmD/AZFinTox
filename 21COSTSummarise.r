@@ -284,53 +284,92 @@ dat_cat_wide <- dat_cat_wide %>%
         values_from = obs
     )
 
-#### Mutate variable names
+#### Mutate variable names, add sort for sorting
 
 dat_cat_wide <- dat_cat_wide %>%
     mutate(
         type = if_else(type == "con", source, type),
         type = if_else(type == "dich", "lgl", type),
-        source = if_else(source %in% c("cat", "lgl"), "con", source)
+        source = if_else(source %in% c("cat", "lgl", "dich"), "con", source),
+        sort = 3
     )
 
 ### Numeric
 
 #### Pivot longer
 dat_cont_long <- dat_cont %>%
-select(-type) %>%
-pivot_longer(
-    cols = -observation,
-    names_to = "timepoint",
-    names_prefix = "value_",
-    values_to = "value"
-)
+    select(-type) %>%
+    pivot_longer(
+        cols = -observation,
+        names_to = "timepoint",
+        names_prefix = "value_",
+        values_to = "value"
+    )
 
 #### Separate observation
 
 dat_cont_long <- dat_cont_long %>%
-separate(col = observation,
-into = c("type", "source", "stat"),
-sep = "_")
+    separate(
+        col = observation,
+        into = c("type", "source", "stat"),
+        sep = "_"
+    )
 
 #### Pivot Wider
 
 dat_cont_wide <- dat_cont_long %>%
-pivot_wider(
-    names_from = stat,
-    values_from = value
-)
+    pivot_wider(
+        names_from = stat,
+        values_from = value
+    )
 
 #### staple together
 
 dat_cont_wide <- dat_cont_wide %>%
-mutate(obs = paste0(mean, " (", sd, ")")) %>%
-select(-c(mean,sd))
+    mutate(obs = paste0(mean, " (", sd, ")")) %>%
+    select(-c(mean, sd))
 
 #### Pivot again
 
 dat_cont_wide <- dat_cont_wide %>%
-pivot_wider(
-    names_from = timepoint,
-    names_prefix = "timepoint_",
-    values_from = obs
-)
+    pivot_wider(
+        names_from = timepoint,
+        names_prefix = "timepoint_",
+        values_from = obs
+    )
+
+#### Rename columns, add Score for sorting
+dat_cont_wide <- dat_cont_wide %>%
+    mutate(
+        type = "num",
+        source = if_else(source %in% c("abs", "raw"), "con", source),
+        score = NA_integer_,
+        sort = 2
+    )
+
+### Sample size
+dat_other_wide <- dat_other %>%
+    mutate(
+        source = "dyad",
+        type = "num",
+        score = NA_integer_,
+        sort = 1
+    ) %>%
+    rename(
+        "timepoint_1" = value_1,
+        "timepoint_2" = value_2,
+        "timepoint_3" = value_3,
+        "timepoint_4" = value_4
+    ) %>%
+    select(-observation)
+## Staple them all togehter
+tidy_dat_sum <- dat_other_wide %>%
+    rbind(dat_cont_wide) %>%
+    rbind(dat_cat_wide) %>%
+    select(source, score, everything()) %>%
+    mutate(source = if_else(source == "con", "z_con", source)) %>%
+    arrange(sort, type, source, score)
+
+# Data Out
+write_csv(x = tidy_dat_sum,
+file = "OutData/TidyCostSummary.csv")
