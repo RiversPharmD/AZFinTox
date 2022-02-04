@@ -33,12 +33,23 @@ dat_care <- read_csv("IntData/demo_care.csv")
 #### Patient
 ## The 1000 cases come from Duke, the 2000 cases from SCCA.
 dat_pat <- timepoint(dat_pat, num = 1) %>%
-mutate(location = if_else(partid <2000, 1, 2))
+    mutate(
+        location = if_else(partid < 2000, 0, 1),
+        race = shift_left(.$race),
+        education = shift_left(.$education),
+        income = shift_left(.$income),
+        marital = shift_left(.$marital)
+    )
 
 #### Caregiver
 dat_care <- timepoint(dat_care, num = 1) %>%
-mutate(location = if_else(partid <2000, 1, 2))
-
+    mutate(
+        location = if_else(partid < 2000, 0, 1),
+        race = shift_left(.$race),
+        education = shift_left(.$education),
+        income = shift_left(.$income),
+        marital = shift_left(.$marital)
+    )
 ### Make long
 
 #### Patient
@@ -50,8 +61,8 @@ dat_care_long <- lengthen(dat_care, x = "caregiver")
 ### Join data
 
 demo <- dat_pat_long %>%
-  full_join(dat_care_long, by = c("partid", "observation")) %>%
-  filter(observation != "childrennum")
+    full_join(dat_care_long, by = c("partid", "observation")) %>%
+    filter(observation != "childrennum")
 ## drop childrennum because it's missing for a lot
 
 ## Data Out
