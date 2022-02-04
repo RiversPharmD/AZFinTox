@@ -10,7 +10,7 @@
 
 | Variable | Meaning | Created In|
 | :------------- | :------------- |:--|
-|  Location    | 1: 1000, 2: 2000      |03DemoTidyJoin.r|
+|  Location    | 0: 1000, 1: 2000      |03DemoTidyJoin.r|
 
 
 ## Variable Recodes
