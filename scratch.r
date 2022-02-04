@@ -143,3 +143,78 @@ ggplot(
   ## Return
   return(dat)
  }
+
+
+
+### Collapse into one column of predictors
+
+pred_dyad <- pred_long %>%
+    filter(observation %in% c(
+        "location",
+        "DX",
+        "stage", "income", "marital", "children"
+    )) %>%
+    select(partid,
+        observation,
+        "value" = value_patient
+    )
+
+pred_patient <- pred_long %>%
+    filter(observation %in% c(
+        "age", "gender", "ethnicity", "race", "education",
+        "comorbid_sum"
+    )) %>%
+    select(partid,
+        observation,
+        "value" = value_patient
+    ) %>%
+    mutate(observation = paste0(observation, "_p"))
+
+pred_care <- pred_long %>%
+    filter(observation %in% c(
+        "age", "gender", "ethnicity", "race", "education",
+        "comorbid_sum"
+    )) %>%
+    select(partid,
+        observation,
+        "value" = value_caregiver
+    ) %>%
+    mutate(observation = paste0(observation, "_c"))
+
+### Rejoin
+
+pred_long <- pred_dyad %>%
+    rbind(pred_patient) %>%
+    rbind(pred_care)
+
+### Pull out observations to loop over them
+
+pred_names <- unique(pred_long$observation)
+
+### Pivot wider
+
+pred_wide <- pred_long %>%
+    pivot_wider(
+        names_from = observation,
+        values_from = value
+    )
+for (i in 1:4) {
+    df <- cost_list[[i]]
+
+    df <- df %>%
+        mutate(across(
+            !c(age_p, age_c, comorbid_sum_p, comorbid_sum_c),
+            as_factor
+        )) %>%
+        mutate(across(
+            !c(age_p, age_c, comorbid_sum_p, comorbid_sum_c),
+            relevel(ref = 0)
+        )) %>%
+        mutate(across(
+            c(age_p, age_c, comorbid_sum_p, comorbid_sum_c),
+            as.double
+        ))
+    levels(df$income) <- c()
+
+    cost_list[[i]] <- df
+}
