@@ -42,12 +42,19 @@ stage == "3B" ~ 5,
 stage == "3C" ~ 6,
 stage == "4" ~ 7,
 stage == "4A" ~ 8,
-stage == "4B" ~ 9)))
+stage == "4B" ~ 9)),
+dx = as.character(case_when(
+    DX == "Breast" ~ 0,
+    DX == "Colon" ~ 1,
+    DX == "Lung" ~ 2,
+    DX == "Rectum" ~ 3
+))) %>%
+select (-DX)
 
 ## Descriptive Stats
 
 dat_sum <- dat %>%
-    group_by(DX, stage) %>%
+    group_by(dx, stage) %>%
     count()
 ## Add column so I can use my silly function
 
