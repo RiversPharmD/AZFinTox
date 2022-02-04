@@ -42,7 +42,7 @@ cost <- list(
 
 cost_dat_avail <- list()
 dat_list <- list()
-# placeholder <- c(NA, NA, NA, NA)
+
 df_dat <- tibble()
 
 ## Loop over available data
@@ -123,7 +123,7 @@ for (i in 1:4) {
     ## Summarise concordance
 
     dat_con_sum <- dat_con %>%
-        group_by(observation) %>%
+
         count(score) %>%
         mutate(per = round((n * 100) / num_obs, 2))
 
@@ -362,7 +362,7 @@ dat_other_wide <- dat_other %>%
         "timepoint_4" = value_4
     ) %>%
     select(-observation)
-## Staple them all togehter
+## Staple them all together
 tidy_dat_sum <- dat_other_wide %>%
     rbind(dat_cont_wide) %>%
     rbind(dat_cat_wide) %>%
