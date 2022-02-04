@@ -22,32 +22,32 @@
 ## original scale
 
 shift_left <- function(x) {
-  library(dplyr)
-  y <- dplyr::if_else(is.na(x) == FALSE, (x - 1), x)
-  return(y)
+    library(dplyr)
+    y <- dplyr::if_else(is.na(x) == FALSE, (x - 1), x)
+    return(y)
 }
 
 ##
 timepoint <- function(dat, num) {
-  dat_new <- dat %>%
-    dplyr::filter(redcap_event_name == num)
-  return(dat_new)
+    dat_new <- dat %>%
+        dplyr::filter(redcap_event_name == num)
+    return(dat_new)
 }
 
 lengthen <- function(dat, x) {
-  ## make column name
-  value <- stringr::str_c("value_", x)
-  ## pivots longer
-  dat_new <- dat %>%
-    tidyr::pivot_longer(
-      cols = !partid:redcap_event_name,
-      names_to = "observation",
-      values_to = value
-    )
-  ## Drops variables
-  dat_new2 <- dat_new %>%
-    dplyr::select(partid, observation, value)
-  return(dat_new2)
+    ## make column name
+    value <- stringr::str_c("value_", x)
+    ## pivots longer
+    dat_new <- dat %>%
+        tidyr::pivot_longer(
+            cols = !partid:redcap_event_name,
+            names_to = "observation",
+            values_to = value
+        )
+    ## Drops variables
+    dat_new2 <- dat_new %>%
+        dplyr::select(partid, observation, value)
+    return(dat_new2)
 }
 
 ## label_factors: This function takes the wide dataset, and recasts variables as
@@ -55,104 +55,110 @@ lengthen <- function(dat, x) {
 
 label_factors <- function(dat) {
 
-  #### Location
- dat$location <- factor(dat$location,
-  levels = c(1, 2),
-   labels = c("Duke", "SCCA")
- )
-
-  #### Gender
-
-  dat$gender <- factor(dat$gender,
-    levels = c(0, 1, 2),
-    labels = c(
-      "Male",
-      "Female", "Transgender"
+    #### Location
+    dat$location <- factor(dat$location,
+        levels = c(0, 1),
+        labels = c("Duke", "SCCA")
     )
-  )
 
-  #### Race
+    #### Gender
 
-  dat$race <- factor(dat$race,
-    levels = c(1:6),
-    labels = c(
-      "AIAN",
-      "Asian",
-      "NHPI",
-      "Black",
-      "White",
-      "Multi"
+    dat$gender <- factor(dat$gender,
+        levels = c(0, 1, 2),
+        labels = c(
+            "Male",
+            "Female", "Transgender"
+        )
     )
-  )
-  #### Ethnicity
 
-  dat$ethnicity <- factor(dat$ethnicity,
-    levels = c(0, 1),
-    labels = c(
-      "Non-Hispanic",
-      "Hispanic"
+    #### Race
+
+    dat$race <- factor(dat$race,
+        levels = c(0:5),
+        labels = c(
+            "AIAN",
+            "Asian",
+            "NHPI",
+            "Black",
+            "White",
+            "Multi"
+        )
     )
-  )
+    #### Ethnicity
 
-  #### Education
-
-  dat$education <- factor(dat$education,
-    levels = c(1:5),
-    labels = c(
-      "LTHS",
-      "HS",
-      "LTBA",
-      "BA",
-      "PostBA"
+    dat$ethnicity <- factor(dat$ethnicity,
+        levels = c(0, 1),
+        labels = c(
+            "Non-Hispanic",
+            "Hispanic"
+        )
     )
-  )
 
-  #### Marital
-  dat$marital <- factor(dat$marital,
-    levels = c(1, 2),
-    labels = c("Married", "Partnered")
-  )
+    #### Education
 
-  #### Income
-
-  dat$income <- factor(dat$income,
-    levels = c(1:7),
-    labels = c(
-      "lt20k",
-      "20-39k",
-      "40-59k",
-      "60-79k",
-      "80-99k",
-      "100-120k",
-      "gt120k"
+    dat$education <- factor(dat$education,
+        levels = c(0:4),
+        labels = c(
+            "LTHS",
+            "HS",
+            "LTBA",
+            "BA",
+            "PostBA"
+        )
     )
-  )
 
-  #### Children
+    #### Marital
+    dat$marital <- factor(dat$marital,
+        levels = c(0, 1),
+        labels = c("Married", "Partnered")
+    )
 
-  dat$children <- factor(dat$children,
-    levels = c(0, 1),
-    labels = c("No", "Yes")
-  )
+    #### Income
 
-  #### Stage
+    dat$income <- factor(dat$income,
+        levels = c(0:6),
+        labels = c(
+            "lt20k",
+            "20-39k",
+            "40-59k",
+            "60-79k",
+            "80-99k",
+            "100-120k",
+            "gt120k"
+        )
+    )
 
-  dat$stage <- factor(dat$stage,
-    levels = 0:9,
-    labels = c("2", "2A", "2B", "3", "3A", "3B", "3C", "4", "4A", "4B")
-  )
+    #### Children
 
-  #### Source
+    dat$children <- factor(dat$children,
+        levels = c(0, 1),
+        labels = c("No", "Yes")
+    )
 
-  dat$source <- factor(dat$source,
-    levels = 0:1,
-    labels = c("Patient", "Caregiver")
-  )
+    #### Stage
 
-  #### Age
-  dat$age <- dat$age
+    dat$stage <- factor(dat$stage,
+        levels = 0:9,
+        labels = c("2", "2A", "2B", "3", "3A", "3B", "3C", "4", "4A", "4B")
+    )
 
-  return(dat)
+    #### dx
+
+    dat$dx <- factor(dat$dx,
+        levels = 0:3,
+        labels = c("Breast", "Colon", "Lung", "Rectum")
+    )
+    #### Source
+
+    dat$source <- factor(dat$source,
+        levels = 0:1,
+        labels = c("Patient", "Caregiver")
+    )
+
+    #### Age
+    dat$age <- dat$age
+
+    return(dat)
 }
 
 
@@ -163,32 +169,31 @@ label_factors <- function(dat) {
 
 discordance <- function(dat, x) {
 
-  ## Load Packages
-  library(dplyr)
+    ## Load Packages
+    library(dplyr)
 
 
-  ## Creates small dataset
-  dat <- dat %>%
-    dplyr::filter(observation == x)
+    ## Creates small dataset
+    dat <- dat %>%
+        dplyr::filter(observation == x)
 
     ## Builds Discordance measure
-  dat <- dat %>%
-    mutate(disc = case_when(
-      value_patient == value_caregiver ~ 0,
-      value_patient < value_caregiver ~ -1,
-      value_patient > value_caregiver ~ 1
-    ))
+    dat <- dat %>%
+        mutate(disc = case_when(
+            value_patient == value_caregiver ~ 0,
+            value_patient < value_caregiver ~ -1,
+            value_patient > value_caregiver ~ 1
+        ))
     ## Summarize Discordance measure
-  dat_sum <- dat %>%
-    group_by(disc) %>%
-    count()
+    dat_sum <- dat %>%
+        group_by(disc) %>%
+        count()
 
     ## Prepare return list
-  dat_list <- list(dat, dat_sum)
+    dat_list <- list(dat, dat_sum)
 
-  ## Return list
-  return(dat_list)
-
+    ## Return list
+    return(dat_list)
 }
 
 ## align_missing: This function takes the long dataframe of dyad values, pulls
@@ -198,39 +203,42 @@ discordance <- function(dat, x) {
 
 align_missing <- function(dat, x) {
 
-  ## Dependencies
-  library(dplyr)
+    ## Dependencies
+    library(dplyr)
 
-  ## slices data
+    ## slices data
 
-  dat_old <- dat %>%
-    filter(observation != x)
+    dat_old <- dat %>%
+        filter(observation != x)
 
-  dat_update <- dat %>%
-    filter(observation == x)
+    dat_update <- dat %>%
+        filter(observation == x)
 
-  ## fill in missingness
+    ## fill in missingness
 
-  dat_update <- dat_update %>%
-    mutate(value_patient = if_else(is.na(value_patient) == TRUE,
-                        value_caregiver,
-                        value_patient),
-           value_caregiver = if_else(is.na(value_caregiver) == TRUE,
-                          value_patient,
-                          value_caregiver))
+    dat_update <- dat_update %>%
+        mutate(
+            value_patient = if_else(is.na(value_patient) == TRUE,
+                value_caregiver,
+                value_patient
+            ),
+            value_caregiver = if_else(is.na(value_caregiver) == TRUE,
+                value_patient,
+                value_caregiver
+            )
+        )
 
-  ## rejoins slices
+    ## rejoins slices
 
-  dat_new <- dat_old %>%
-    rbind(dat_update)
+    dat_new <- dat_old %>%
+        rbind(dat_update)
 
     ## Check for correct rows
     ifelse(nrow(dat) != nrow(dat_new),
-      print("The length of the new data doesn't match old data "),
-    ## Return
-      return(dat_new))
-
-
+        print("The length of the new data doesn't match old data "),
+        ## Return
+        return(dat_new)
+    )
 }
 ## align_discordant: This function takes a long dataset, an observation of
 ## interest, and a logical imput. It "checks out" all of the observations of
@@ -240,57 +248,58 @@ align_missing <- function(dat, x) {
 
 align_discordant <- function(dat, x, max = TRUE) {
 
-  ## Dependencies
+    ## Dependencies
     library(dplyr)
 
-  ## Slices data
+    ## Slices data
 
     dat_old <- dat %>%
-      filter(observation != x)
+        filter(observation != x)
 
     dat_update <- dat %>%
-      filter(observation == x)
+        filter(observation == x)
 
-  ## Adds placeholder column
-
-    dat_update <- dat_update %>%
-      mutate(placeholder = NA)
-
-  ## Checks logical
-  if(max == TRUE){
-    ## TRUE
-    dat_update <- dat_update %>%
-      rowwise() %>%
-      mutate(placeholder = max(c_across(value_patient:value_caregiver)))
-
-  } else
-  {
-    ## FALSE
-    dat_update <- dat_update %>%
-      rowwise() %>%
-      mutate(placeholder = min(c_across(value_patient:value_caregiver)))
-  }
-
-  ## set value_patient and value_caregiver to placeholder
+    ## Adds placeholder column
 
     dat_update <- dat_update %>%
-      mutate(value_patient = placeholder,
-             value_caregiver = placeholder)
+        mutate(placeholder = NA)
 
-  ## drop placeholder
+    ## Checks logical
+    if (max == TRUE) {
+        ## TRUE
+        dat_update <- dat_update %>%
+            rowwise() %>%
+            mutate(placeholder = max(c_across(value_patient:value_caregiver)))
+    } else {
+        ## FALSE
+        dat_update <- dat_update %>%
+            rowwise() %>%
+            mutate(placeholder = min(c_across(value_patient:value_caregiver)))
+    }
+
+    ## set value_patient and value_caregiver to placeholder
 
     dat_update <- dat_update %>%
-      select(-placeholder)
+        mutate(
+            value_patient = placeholder,
+            value_caregiver = placeholder
+        )
 
-  ## Insert back
+    ## drop placeholder
+
+    dat_update <- dat_update %>%
+        select(-placeholder)
+
+    ## Insert back
     dat_new <- dat_old %>%
-      rbind(dat_update)
+        rbind(dat_update)
 
-  ## Check for correct rows
+    ## Check for correct rows
     ifelse(nrow(dat) != nrow(dat_new),
-      print("The length of the new data doesn't match old data "),
-  ## Return
-      return(dat_new))
+        print("The length of the new data doesn't match old data "),
+        ## Return
+        return(dat_new)
+    )
 }
 ## extract_missing: This function pulls the partids the correspond with missing
 ## observations in a given column. It takes a long dataframe, scans it for NAs
@@ -298,22 +307,22 @@ align_discordant <- function(dat, x, max = TRUE) {
 
 extract_missing <- function(dat, x) {
 
-  ## Dependencies
-  library(dplyr)
+    ## Dependencies
+    library(dplyr)
 
-  ## quosure magic that i don't really understand
-  ## (https://rpubs.com/hadley/dplyr-programming)
-  x <- enquo(x)
+    ## quosure magic that i don't really understand
+    ## (https://rpubs.com/hadley/dplyr-programming)
+    x <- enquo(x)
 
-  ## filters based on X
-  dat <- dat %>%
-    dplyr::filter(is.na(!!x))
+    ## filters based on X
+    dat <- dat %>%
+        dplyr::filter(is.na(!!x))
 
-  ## Selects vector of partids
-  vec <- dat$partid
+    ## Selects vector of partids
+    vec <- dat$partid
 
-  ## returns vector
-  return(vec)
+    ## returns vector
+    return(vec)
 }
 
 import_partid <- function(timepoint,
