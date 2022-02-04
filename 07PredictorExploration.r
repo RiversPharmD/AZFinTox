@@ -39,7 +39,8 @@ source("00Functions.r")
 
 ## Data In
 dat <- read_csv(file = "IntData/pred_wide.csv")
-dat_long <- read_csv(file = "IntData/pred.csv")
+dat_long <- read_csv(file = "IntData/pred.csv",
+                     col_types = "cccc")
 
 ## Set up Data structure
 
@@ -50,7 +51,7 @@ dat <- label_factors(dat)
 ## Cast Table
 
 table1(~ age + gender + race + ethnicity + education + marital + income +
-  children + comorbid_sum + DX + stage | location * source, data = dat)
+  children + comorbid_sum + dx + stage | location * source, data = dat)
 
 ## There is a lot of missingness here
 
@@ -111,7 +112,7 @@ dat_long <- align_discordant(
 )
 
 
-### Recalculate discordance measure
+### Recalculate discordance measure (HAVE INCOME)
 
 income_list <- discordance(
   dat = dat_long,
@@ -136,7 +137,7 @@ vec_missing_partid <- c(income_missing, vec_missing_partid)
 dat_long <- dat_long %>%
   filter(!partid %in% vec_missing_partid)
 
-### Calculate Discordance
+### Calculate Discordance (HAVE INCOME)
 
 children_list <- discordance(
   dat = dat_long,
@@ -155,7 +156,7 @@ dat_long <- align_discordant(
   x = "children"
 )
 
-### Recalculate Discordance
+### Recalculate Discordance (HAVE INCOME)
 
 children_list <- discordance(
   dat = dat_long,
@@ -177,7 +178,7 @@ vec_missing_partid <- c(children_missing, vec_missing_partid)
 dat_long <- dat_long %>%
   filter(!partid %in% vec_missing_partid)
 
-### Split Data Again
+### Split Data Again (HAVE INCOME)
 pat <- dat_long %>%
   select(-value_caregiver)
 
@@ -290,7 +291,8 @@ dat_long <- dat_long %>%
 filter(!partid %in% vec_missing_partid)
 
 dat_wide <- dat_wide %>%
-filter(!partid %in% vec_missing_partid)
+filter(!partid %in% vec_missing_partid) %>%
+    select(-count_na)
 
 ## Data out
 
