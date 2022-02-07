@@ -14,12 +14,16 @@
 ##
 ## Output:
 
+## NOTE: This scoring system is inverse of COST scoring, where 0 is no FT and 1
+## is FT.
+
 ################################################################################
 
 
 # Packages______________________________________________________________________
-
+library(tidyverse)
 library(tidymodels)
+
 
 # Functions_____________________________________________________________________
 source("00Functions.r")
@@ -227,21 +231,88 @@ tidy_biv_df <- tidy_biv_df %>%
 ## Break Term into Three categories
 
 tidy_biv_df <- tidy_biv_df %>%
-mutate(observation = case_when(
-    str_detect(term, "^age_") == TRUE ~ "Age",
-    str_detect(term, "^gender_") == TRUE ~ "Gender",
-    str_detect(term, "^ethnicity_") == TRUE ~ "Ethnicity",
-    str_detect(term, "^race_") == TRUE ~ "Race",
-
-
-))
+    mutate(
+        observation = case_when(
+            str_detect(term, "^age_") == TRUE ~ "Age",
+            str_detect(term, "^children") == TRUE ~ "Children",
+            str_detect(term, "^comorbid_sum") == TRUE ~ "Comorbidities",
+            str_detect(term, "^dx") == TRUE ~ "Diagnosis",
+            str_detect(term, "^education_") == TRUE ~ "Education",
+            str_detect(term, "^ethnicity_") == TRUE ~ "Ethnicity",
+            str_detect(term, "^gender_") == TRUE ~ "Gender",
+            str_detect(term, "^income") == TRUE ~ "Income",
+            str_detect(term, "^location") == TRUE ~ "Location",
+            str_detect(term, "^marital") == TRUE ~ "Marital",
+            str_detect(term, "^race_") == TRUE ~ "Race",
+            str_detect(term, "^stage") == TRUE ~ "Stage",
+            TRUE ~ "ERROR"
+        ),
+        person = case_when(
+            str_detect(term, "_p") == TRUE ~ "Patient",
+            str_detect(term, "_c") == TRUE ~ "Caregiver",
+            TRUE ~ "Dyad"
+        ),
+        level = case_when(
+            str_detect(term, "Yes") == TRUE ~ "Yes",
+            str_detect(term, "Transgender") == TRUE ~ "Transgender",
+            str_detect(term, "Colon") == TRUE ~ "Colon",
+            str_detect(term, "Lung") == TRUE ~ "Lung",
+            str_detect(term, "Rectum") == TRUE ~ "Rectum",
+            str_detect(term, "cBA") == TRUE ~ "College Degree",
+            str_detect(term, "pBA") == TRUE ~ "College Degree",
+            str_detect(term, "HS") == TRUE ~ "High School",
+            str_detect(term, "LTBA") == TRUE ~ "Some College",
+            str_detect(term, "PostBA") == TRUE ~ "Some Graduate School",
+            str_detect(term, "Hispanic") == TRUE ~ "Hispanic",
+            str_detect(term, "Female") == TRUE ~ "Female",
+            str_detect(term, "100-120k") == TRUE ~ "100-120k",
+            str_detect(term, "20-39k") == TRUE ~ "20-39k",
+            str_detect(term, "40-59k") == TRUE ~ "40-59k",
+            str_detect(term, "60-79k") == TRUE ~ "60-79k",
+            str_detect(term, "80-99k") == TRUE ~ "80-99k",
+            str_detect(term, "gt120k") == TRUE ~ "Greater than 120k",
+            str_detect(term, "SCCA") == TRUE ~ "SCCA",
+            str_detect(term, "Partnered") == TRUE ~ "Marital",
+            str_detect(term, "Black") == TRUE ~ "Black",
+            str_detect(term, "Multi") == TRUE ~ "Multiracial",
+            str_detect(term, "Asian") == TRUE ~ "Asian",
+            str_detect(term, "AIAN") == TRUE ~ "American Indian or Alaskan Native",
+            str_detect(term, "NHPI") == TRUE ~
+            "Native Hawaiian or Pacific Islander",
+            str_detect(term, "2A") == TRUE ~ "2A",
+            str_detect(term, "2B") == TRUE ~ "2B",
+            str_detect(term, "2C") == TRUE ~ "2C",
+            str_detect(term, "3$") == TRUE ~ "3",
+            str_detect(term, "3A") == TRUE ~ "3A",
+            str_detect(term, "3B") == TRUE ~ "3B",
+            str_detect(term, "3C") == TRUE ~ "3C",
+            str_detect(term, "4$") == TRUE ~ "4",
+            str_detect(term, "4A") == TRUE ~ "4A",
+            str_detect(term, "4B") == TRUE ~ "4B",
+            str_detect(term, "^age") == TRUE ~ "1 year",
+            str_detect(term, "^comorbid") == TRUE ~ "1 point",
+            TRUE ~ NA_character_
+        )
+    )
 ## Rename stuff
 
 tidy_biv_df <- tidy_biv_df %>%
     select(
-        "Predictor" = term,
-        "Odds_Ratio" = estimate,
-        "Confidence_Interval" = confidence_interval,
-        "P_Value" = p.value,
-        "Timepoint" = timepoint
+        "Timepoint" = timepoint,
+        "Person" = person,
+        "Observation" = observation,
+        "Level" = level,
+        "Odds Ratio" = estimate,
+        "Confidence Interval" = confidence_interval,
+        "P Value" = p.value
+    ) %>%
+    arrange(
+        Timepoint,
+        Person,
+        Observation,
+        Level
     )
+# Data Out _____________________________________________________________________
+
+write_csv(biv_df_out, file = "IntData/bivariate_COST_logistic_regression.csv")
+write_csv(tidy_biv_df, file = "OutData/TidyCOSTlogisticregression.csv")
