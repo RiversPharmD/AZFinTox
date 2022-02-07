@@ -213,7 +213,7 @@ naniar::gg_miss_upset(dat_wide, nsets = n_var_miss(dat_wide))
 
 ## Marital Status
 
-## There are 4 dyads with an individual missing marital status
+
 
 ### Calculate discordance
 

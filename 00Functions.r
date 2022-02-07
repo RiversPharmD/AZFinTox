@@ -138,8 +138,8 @@ label_factors <- function(dat) {
     #### Stage
 
     dat$stage <- factor(dat$stage,
-        levels = 0:9,
-        labels = c("2", "2A", "2B", "3", "3A", "3B", "3C", "4", "4A", "4B")
+        levels = 0:10,
+        labels = c("2", "2A", "2B", "2C", "3", "3A", "3B", "3C", "4", "4A", "4B")
     )
 
     #### dx

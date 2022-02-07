@@ -35,45 +35,54 @@ dat_care <- read_csv("IntData/comor_care.csv")
 
 ### Remove other rows: comorbidities were only captured at the first timepoint
 
-#### Patient
+#### Patient (remove cancer from score here because all patients have it, also
+## created another variable where all patients get the point for cancer)
 dat_pat <- timepoint(dat_pat, 1) %>%
     select(partid,
-           redcap_event_name,
-           hrt_dz = comorbid01,
-           htn = comorbid02,
-           lng_dz = comorbid03,
-           diab = comorbid04,
-           stm_dz = comorbid05,
-           kid_dz = comorbid06,
-           liv_dz = comorbid07,
-           bld_dz = comorbid08,
-           can = comorbid09,
-           dep = comorbid10,
-           art_dz = comorbid11,
-           back = comorbid12,
-           rhe_dz = comorbid13,
-           comorbid_sum)
+        redcap_event_name,
+        hrt_dz = comorbid01,
+        htn = comorbid02,
+        lng_dz = comorbid03,
+        diab = comorbid04,
+        stm_dz = comorbid05,
+        kid_dz = comorbid06,
+        liv_dz = comorbid07,
+        bld_dz = comorbid08,
+        can = comorbid09,
+        dep = comorbid10,
+        art_dz = comorbid11,
+        back = comorbid12,
+        rhe_dz = comorbid13
+    ) %>%
+    mutate(can_adj = 1) %>%
+    mutate(#comorbid_adj = rowSums(across(c(hrt_dz:bld_dz, dep:can_adj))),
+        comorbid_sum = rowSums(across(c(hrt_dz:bld_dz, dep:rhe_dz)), na.rm =TRUE)
+
+    )
+
+
+
 
 #### Caregiver
 dat_care <- timepoint(dat_care, 1) %>%
     select(partid,
-           redcap_event_name,
-           partid,
-           redcap_event_name,
-           hrt_dz = comorbid01,
-           htn = comorbid02,
-           lng_dz = comorbid03,
-           diab = comorbid04,
-           stm_dz = comorbid05,
-           kid_dz = comorbid06,
-           liv_dz = comorbid07,
-           bld_dz = comorbid08,
-           can = comorbid09,
-           dep = comorbid10,
-           art_dz = comorbid11,
-           back = comorbid12,
-           rhe_dz = comorbid13,
-           comorbid_sum)
+        redcap_event_name,
+        hrt_dz = comorbid01,
+        htn = comorbid02,
+        lng_dz = comorbid03,
+        diab = comorbid04,
+        stm_dz = comorbid05,
+        kid_dz = comorbid06,
+        liv_dz = comorbid07,
+        bld_dz = comorbid08,
+        can = comorbid09,
+        dep = comorbid10,
+        art_dz = comorbid11,
+        back = comorbid12,
+        rhe_dz = comorbid13
+    ) %>%
+    mutate(comorbid_sum = rowSums(across(c(hrt_dz:rhe_dz)), na.rm =TRUE)
+)
 
 ### Make long
 
@@ -86,12 +95,12 @@ dat_care_long <- lengthen(dat_care, x = "caregiver")
 ### Join data
 
 dat_long <- dat_pat_long %>%
-  left_join(dat_care_long, by = c("partid", "observation"))
+    left_join(dat_care_long, by = c("partid", "observation"))
 
 ### Create dataset with only cumulative score
 
 dat_long_cumu <- dat_long %>%
-  filter(observation == "comorbid_sum") ## is this just sum, or is it weighted?
+    filter(observation == "comorbid_sum" )
 
 ## Data Out
 write_csv(x = dat_long, file = "IntData/comor_allobs.csv")

@@ -8,9 +8,11 @@
 
 ## Intermediate Variables
 
-| Variable | Meaning | Created In|
-| :------------- | :------------- |:--|
-|  Location    | 0: 1000, 1: 2000      |03DemoTidyJoin.r|
+| Variable | Meaning | Created In|Note|
+| :------------- | :------------- |:--|:--|
+|  Location    | 0: 1000, 1: 2000      |03DemoTidyJoin.r| easier to read|
+| can_adj|0: no cancer, 1: cancer| 05ComorbTidyJoin.r| account for patients who said they didn't have cancer|
+| comorb_adj| sum of comorb replacing can with can_adj| 05ComorbTidyJoin.r| Account for patients who said they didn't have cancer|
 
 
 ## Variable Recodes

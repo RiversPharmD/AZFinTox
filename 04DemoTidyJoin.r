@@ -22,9 +22,11 @@ source("00Functions.r")
 
 ### Patient
 dat_pat <- read_csv("IntData/demo_pat.csv")
+dat_pat_update <- read_csv("IntData/pt_update.csv")
 
 ### Caregiver
 dat_care <- read_csv("IntData/demo_care.csv")
+dat_care_update <- read_csv("IntData/cg_update.csv")
 
 ## Tidying
 
@@ -41,6 +43,12 @@ dat_pat <- timepoint(dat_pat, num = 1) %>%
         marital = shift_left(.$marital)
     )
 
+dat_pat_update <- dat_pat_update %>%
+    mutate(
+        race = shift_left(.$race),
+        marital = shift_left(.$marital)
+    )
+
 #### Caregiver
 dat_care <- timepoint(dat_care, num = 1) %>%
     mutate(
@@ -50,6 +58,63 @@ dat_care <- timepoint(dat_care, num = 1) %>%
         income = shift_left(.$income),
         marital = shift_left(.$marital)
     )
+dat_care_update <- dat_care_update %>%
+    mutate(
+        race = shift_left(.$race),
+        marital = shift_left(.$marital)
+    )
+
+### Join updated data and update missingness
+
+dat_pat <- dat_pat %>%
+    full_join(dat_pat_update,
+        by = "partid"
+    ) %>%
+    mutate(
+        age = case_when(
+            is.na(age.x) == TRUE ~ age.y,
+            TRUE ~ age.x
+        ),
+        gender = if_else(
+            is.na(gender.x) == TRUE, gender.y, gender.x
+        ),
+        ethnicity = if_else(
+            is.na(ethnicity.x) == TRUE, ethnicity.y, ethnicity.x
+        ),
+        race = if_else(
+            is.na(race.x) == TRUE, race.y, race.x
+        ),
+        marital = if_else(
+            is.na(marital.x) == TRUE, marital.y, marital.x
+        )
+    ) %>%
+    select(!contains("."))
+dat_pat$role <- NULL
+
+dat_care <- dat_care %>%
+    full_join(dat_care_update,
+        by = "partid"
+    ) %>%
+    mutate(
+        age = case_when(
+            is.na(age.x) == TRUE ~ age.y,
+            TRUE ~ age.x
+        ),
+        gender = if_else(
+            is.na(gender.x) == TRUE, gender.y, gender.x
+        ),
+        ethnicity = if_else(
+            is.na(ethnicity.x) == TRUE, ethnicity.y, ethnicity.x
+        ),
+        race = if_else(
+            is.na(race.x) == TRUE, race.y, race.x
+        ),
+        marital = if_else(
+            is.na(marital.x) == TRUE, marital.y, marital.x
+        )
+    ) %>%
+    select(!contains("."))
+dat_care$role <- NULL
 ### Make long
 
 #### Patient
@@ -68,3 +133,4 @@ demo <- dat_pat_long %>%
 ## Data Out
 
 write_csv(x = demo, file = "IntData/demo.csv")
+
