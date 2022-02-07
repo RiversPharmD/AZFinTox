@@ -123,7 +123,7 @@ for (i in 1:4) {
     ## Summarise concordance
 
     dat_con_sum <- dat_con %>%
-
+        group_by(observation) %>%
         count(score) %>%
         mutate(per = round((n * 100) / num_obs, 2))
 

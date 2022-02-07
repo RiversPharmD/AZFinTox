@@ -1,4 +1,4 @@
-dat ###############################################################################
+###############################################################################
 ## Purpose: this file loads joined datasets and analyzes them.
 
 ## Depends:
@@ -155,7 +155,16 @@ cost <- list(
     )
 )
 
+# Data transformation
 
+## drop unused outcomes because they break a join later
+
+cost$cost_full <- cost$cost_full %>%
+    select(-c(
+        cost_lgl,
+        cost_cat,
+        count_na
+    ))
 # Analysis
 
 ## 1: Crude correlation at each timepoint.

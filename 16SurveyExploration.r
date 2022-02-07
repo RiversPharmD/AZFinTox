@@ -153,7 +153,8 @@ dat <- dat %>%
   mutate(observation = case_when(
     observation == "sum_p" ~ "patient",
     observation == "sum_c" ~ "caregiver",
-    observation == "con_dir" ~ "dyad"
+    observation == "con_dir" ~ "dyad",
+    observation == "con_raw" ~ "dyad"
   ))
 
 ### Summarise Availability
@@ -207,7 +208,8 @@ dat_avail <- dat_avail %>%
     survey,
     observation,
     sep = "_"
-  ))
+  )) %>%
+    filter(is.na(observation) == FALSE)
 
 #### Names the datsets
 vec_dat_name <- dat_avail$dat_name
@@ -224,3 +226,4 @@ for (i in seq_along(df_list)) {
     write_csv(x = df_list[[i]],
               file = file_name[[i]])
 }
+

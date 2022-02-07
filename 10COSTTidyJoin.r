@@ -142,10 +142,21 @@ dat <- dat_narrow_p %>%
 ##### Full
 
 dat_full <- rbind(dat_p, dat_c)
-#### Drop the ones with missing predictors
 
-dat <- dat %>%
-    filter(!partid %in% partid_missing_demo)
+#### Look for missingness
+
+dat_full <- dat_full %>%
+    mutate(count_na = rowSums(is.na(.)))
+
+#### Pull out partid's of indiviudals with <11 but >0 NAs
+
+dat_missing_some_answers <- dat_full %>%
+    filter(count_na > 0 & count_na < 14)
+
+#### Filter for missingness
+
+dat_full <- dat_full %>%
+filter(count_na == 0)
 
 ### Create concordance variable
 
@@ -154,12 +165,12 @@ dat <- dat %>%
 dat <- dat %>%
     mutate(
         con_raw = sum_p - sum_c, ## Raw
-        con_dich = case_when(    ## Logical
+        con_dich = case_when( ## Logical
             lgl_p == lgl_c ~ 0,
             lgl_p < lgl_c ~ 1,
             lgl_p > lgl_c ~ 2
         ),
-        con_cat = case_when(     ## Categorical
+        con_cat = case_when( ## Categorical
             cat_p == cat_c ~ 0,
             cat_p < cat_c ~ 1,
             cat_p > cat_c ~ 2
@@ -182,3 +193,4 @@ dat <- dat %>%
 
 write_csv(dat, file = "IntData/cost.csv")
 write_csv(dat_full, file = "IntData/cost_full.csv")
+write_csv(dat_missing_some_answers, file = "IntData/COST_missing_answers.csv")
