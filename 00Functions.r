@@ -73,7 +73,7 @@ label_factors <- function(dat) {
 
     #### Race
 
-    dat$race <- factor(dat$race,
+    dat$race <- relevel(factor(dat$race,
         levels = c(0:5),
         labels = c(
             "AIAN",
@@ -83,7 +83,7 @@ label_factors <- function(dat) {
             "White",
             "Multi"
         )
-    )
+    ), ref = "White")
     #### Ethnicity
 
     dat$ethnicity <- factor(dat$ethnicity,
