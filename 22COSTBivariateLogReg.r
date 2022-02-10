@@ -17,6 +17,7 @@
 ## IntData/cost.csv
 
 ## Output:
+## OutData/uv_lr_*.docx
 
 ## NOTE: This scoring system is inverse of COST scoring, where 0 is no FT and 1
 ## is FT.
