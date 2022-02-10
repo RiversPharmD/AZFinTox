@@ -22,26 +22,34 @@
 
 # Packages______________________________________________________________________
 library(tidyverse)
-library(tidymodels)
 library(gtsummary)
+library(flextable)
 
 
 # Functions_____________________________________________________________________
 source("00Functions.r")
 
-bounded_style_ratio <-function(x, min = 0.001, max = 100) {
-    dplyr::case_when(
-        x < min ~ paste0("<", gtsummary::style_ratio(min, ...)),
-        x > max ~ paste0(">", gtsummary::style_ratio(max, ...)),
-        TRUE ~ gtsummary::style_ratio(x, ...))
-
+bounded_style_ratio <- function(x, min = -Inf, max = Inf, ...) {
+    purrr::map_chr(
+        x,
+        function(x) {
+            if (isTRUE(x < min)) {
+                return(paste0("<", gtsummary::style_ratio(min, ...)))
+            }
+            if (isTRUE(x > max)) {
+                return(paste0(">", gtsummary::style_ratio(max, ...)))
+            }
+            gtsummary::style_ratio(x, ...)
+        }
+    )
 }
 # Data In_______________________________________________________________________
 
 ## Predictors
 
 pred_wide <- read_csv(
-    "IntData/dat_wide.csv")
+    "IntData/dat_wide.csv"
+)
 
 ## COST
 
