@@ -23,15 +23,25 @@
 # Packages______________________________________________________________________
 library(tidyverse)
 library(tidymodels)
+library(gtsummary)
 
 
 # Functions_____________________________________________________________________
 source("00Functions.r")
+
+bounded_style_ratio <-function(x, min = 0.001, max = 100) {
+    dplyr::case_when(
+        x < min ~ paste0("<", gtsummary::style_ratio(min, ...)),
+        x > max ~ paste0(">", gtsummary::style_ratio(max, ...)),
+        TRUE ~ gtsummary::style_ratio(x, ...))
+
+}
 # Data In_______________________________________________________________________
 
 ## Predictors
 
-pred_wide <- read_csv("IntData/dat_wide.csv")
+pred_wide <- read_csv(
+    "IntData/dat_wide.csv")
 
 ## COST
 
@@ -291,7 +301,7 @@ tidy_biv_df <- tidy_biv_df %>%
             str_detect(term, "4B") == TRUE ~ "4B",
             str_detect(term, "^age") == TRUE ~ "1 year",
             str_detect(term, "^comorbid") == TRUE ~ "1 point",
-            TRUE ~ NA_character_
+            TRUE ~ "error"
         )
     )
 ## Rename stuff
