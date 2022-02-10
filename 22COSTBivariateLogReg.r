@@ -8,10 +8,14 @@
 ## Depends on:
 ## 07PredictorExploration.r
 ## 10COSTTidyJoin.r
-## tidymodels
+## tidyverse
+## gtsummary
+## flextable
 
 ## Input:
-##
+## IntData/dat_wide.csv
+## IntData/cost.csv
+
 ## Output:
 
 ## NOTE: This scoring system is inverse of COST scoring, where 0 is no FT and 1
@@ -135,10 +139,6 @@ cost_list <- cost_list %>%
         y = pred_wide,
         by = "partid"
     ))
-
-
-
-
 
 # Run Models____________________________________________________________________
 ## Build empty list-------------------------------------------------------------
