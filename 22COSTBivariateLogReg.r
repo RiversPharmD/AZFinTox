@@ -126,10 +126,11 @@ pred_wide <- pat_wide %>%
     left_join(care_wide) %>%
     mutate(partid = as.character(partid))
 
-### pull out predictor names
+### pull out factor predictor names
 
 pred_names <- pred_wide %>%
     select(-partid) %>%
+    select(where(is.factor)) %>%
     names()
 
 ## Join with outcomes
@@ -142,10 +143,11 @@ cost_list <- cost_list %>%
     ))
 
 # Run Models____________________________________________________________________
-## Build empty list-------------------------------------------------------------
+## Logistic Regression----------------------------------------------------------
+### Build empty list
 lr_list <- list()
 
-## loop over timepoints---------------------------------------------------------
+### loop over timepoints
 for (i in 1:4) {
     lr_list[[i]] <- cost_list[[i]] %>%
         select(-c(redcap_event_name, partid)) %>%
@@ -161,16 +163,58 @@ for (i in 1:4) {
         as_flex_table()
 }
 
+## Crosstables------------------------------------------------------------------
+### Build empty list
+ct_list <- list()
+tp_list <- list()
+
+### loop over timepoints
+for (i in 1:4) {
+    dat_in <- cost_list[[i]] %>%
+        select(-c(redcap_event_name, partid)) %>%
+        filter(is.na(age_p) == FALSE)
+
+    for (z in seq_along(pred_names)) {
+        row_var <- pred_names[[z]]
+        tp_list[[z]] <- tbl_cross(
+            data = dat_in,
+            row = row_var,
+            col = con
+        ) %>%
+            add_p()
+    }
+    dat <- tbl_stack(
+        tbls = tp_list
+    ) %>%
+        as_flex_table()
+
+    ct_list[[i]] <- dat
+}
+
+
 # Data Out _____________________________________________________________________
 ## Path-------------------------------------------------------------------------
 start <- "OutData/"
-fn <- "uv_lr_"
 end <- ".docx"
 
 ## Loop over print function-----------------------------------------------------
 for (i in 1:4) {
+
+    ### Logistic Regression
+    fn <- "uv_lr_"
     save_as_docx(
         lr_list[[i]],
+        path = paste0(
+            start,
+            fn,
+            i,
+            end
+        )
+    )
+    ### Crosstables
+    fn <- "crosstab_"
+    save_as_docx(
+        ct_list[[i]],
         path = paste0(
             start,
             fn,
