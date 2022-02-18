@@ -76,12 +76,12 @@ label_factors <- function(dat) {
     dat$race <- relevel(factor(dat$race,
         levels = c(0:5),
         labels = c(
-            "AIAN",
+            "American Indian or Alaskan Native",
             "Asian",
-            "NHPI",
+            "Native Hawaiian or Pacific Islander",
             "Black",
             "White",
-            "Multi"
+            "Multiracial"
         )
     ), ref = "White")
     #### Ethnicity
@@ -99,11 +99,11 @@ label_factors <- function(dat) {
     dat$education <- factor(dat$education,
         levels = c(0:4),
         labels = c(
-            "LTHS",
-            "HS",
-            "LTBA",
-            "BA",
-            "PostBA"
+            "Less than High School",
+            "High School",
+            "Less than 4 Year Degree",
+            "4 Year Degree",
+            "Education beyond 4 Year Degree"
         )
     )
 
@@ -118,13 +118,13 @@ label_factors <- function(dat) {
     dat$income <- factor(dat$income,
         levels = c(0:6),
         labels = c(
-            "lt20k",
+            "Less than 20k",
             "20-39k",
             "40-59k",
             "60-79k",
             "80-99k",
             "100-120k",
-            "gt120k"
+            "Greater than 120k"
         )
     )
 
@@ -138,8 +138,8 @@ label_factors <- function(dat) {
     #### Stage
 
     dat$stage <- factor(dat$stage,
-        levels = 0:10,
-        labels = c("2", "2A", "2B", "2C", "3", "3A", "3B", "3C", "4", "4A", "4B")
+        levels = 0:2,
+        labels = c("2", "3", "4")
     )
 
     #### dx

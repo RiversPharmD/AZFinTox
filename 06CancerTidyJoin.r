@@ -48,16 +48,16 @@ dat <- dat %>%
     mutate(
         stage = as.character(case_when(
             stage == "2" ~ 0,
-            stage == "2A" ~ 1,
-            stage == "2B" ~ 2,
-            stage == "2C" ~ 3,
-            stage == "3" ~ 4,
-            stage == "3A" ~ 5,
-            stage == "3B" ~ 6,
-            stage == "3C" ~ 7,
-            stage == "4" ~ 8,
-            stage == "4A" ~ 9,
-            stage == "4B" ~ 10
+            stage == "2A" ~ 0,
+            stage == "2B" ~ 0,
+            stage == "2C" ~ 0,
+            stage == "3" ~ 1,
+            stage == "3A" ~ 1,
+            stage == "3B" ~ 1,
+            stage == "3C" ~ 1,
+            stage == "4" ~ 2,
+            stage == "4A" ~ 2,
+            stage == "4B" ~ 2
         )),
         dx = as.character(case_when(
             DX == "Breast" ~ 0,
