@@ -157,14 +157,16 @@ dat <- dat %>%
     mutate(
         con_raw = sum_p - sum_c, ## Raw
         con_dich = case_when( ## Logical
-            lgl_p == lgl_c ~ 0,
-            lgl_p < lgl_c ~ 1,
-            lgl_p > lgl_c ~ 2
+            lgl_p == 0 & lgl_c == 0 ~ 0,
+            lgl_p < lgl_c ~ 2,
+            lgl_p > lgl_c ~ 3,
+            lgl_p == 1 & lgl_c == 1 ~ 1
         ),
         con_cat = case_when( ## Categorical
-            cat_p == cat_c ~ 0,
-            cat_p < cat_c ~ 1,
-            cat_p > cat_c ~ 2
+            cat_p == 0 & cat_c == 0 ~ 0,
+            cat_p < cat_c ~ 2,
+            cat_p > cat_c ~ 3,
+            cat_c == cat_p ~ 1
         )
     )
 
