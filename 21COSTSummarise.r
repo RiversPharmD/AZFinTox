@@ -8,7 +8,6 @@
 ## Depends on:
 ## 00Functions.r
 ## 10COSTTidyJoin.r
-## 20COSTCorrChronbach.r
 ## tidyverse
 
 ## Input:
