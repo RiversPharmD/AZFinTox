@@ -8,8 +8,7 @@
 
 ## Depends on:
 ## 08PredictorMissingness.r
-## GGally
-## tableone
+## gtsummary
 ## tidyverse
 
 ## Input:
@@ -22,8 +21,7 @@
 ################################################################################
 
 # Packages______________________________________________________________________
-library(GGally)
-library(tableone)
+library(gtsummary)
 library(tidyverse)
 source("00Functions.r")
 
@@ -71,10 +69,10 @@ dyad_wide <- demo_wide %>%
 #### Set Vars
 care_vars <- c(
     "age", "gender", "ethnicity", "race", "education",
-    "comorbid_sum"
+    "comorbid_sum", "location"
 )
 pat_vars <- c(care_vars, "stage", "dx")
-dyad_vars <- c("income", "children", "marital")
+dyad_vars <- c("income", "children", "marital", "location")
 
 
 #### Populate Tables
@@ -83,103 +81,38 @@ dyad_vars <- c("income", "children", "marital")
 # factorVar parameter. I've left it to be hand-calculated here because I think
 # it's easier to update a single number than add the transgender row.
 
-care_table_one <- CreateTableOne(
-    vars = care_vars,
-    data = care_wide,
-    strata = "location", test = TRUE
-)
+care_table_one <- care_wide %>%
+    select(care_vars) %>%
+    tbl_summary(by = location) %>%
+    add_p() %>%
+    add_overall()
 
-pat_table_one <- CreateTableOne(
-    vars = pat_vars,
-    data = pat_wide,
-    strata = "location",
-    test = TRUE
-)
+pat_table_one <- pat_wide %>%
+    select(pat_vars) %>%
+    tbl_summary(by = location) %>%
+    add_p() %>%
+    add_overall()
 
-dyad_table_one <- CreateTableOne(
-    vars = dyad_vars,
-    data = dyad_wide,
-    strata = "location",
-    test = TRUE
-)
+dyad_table_one <- dyad_wide %>%
+    select(dyad_vars) %>%
+    tbl_summary(by = location) %>%
+    add_p() %>%
+    add_overall()
 
 #### Prep for output
-table_one_list <- list(
-    care_table_one,
-    pat_table_one,
-    dyad_table_one
+table_one <- tbl_stack(
+    tbls = list(
+        pat_table_one,
+        care_table_one,
+        dyad_table_one
+    ),
+    group_header = c("Patient", "Caregiver", "Dyad")
 )
 
-names(table_one_list) <- c(
-    "Caregiver",
-    "Patient",
-    "Dyad"
-)
-
-table_one_print <- list()
-for (i in seq_along(table_one_list)) {
-    dat <- table_one_list[[i]]
-
-    table_one_print[[i]] <- print(dat,
-        noSpaces = TRUE,
-        quote = FALSE,
-        printToggle = FALSE
-    )
-}
-
-## Correllation Plot------------------------------------------------------------
-
-### Set up data
-
-#### Widen
-pat_wide <- pat_wide %>%
-    pivot_wider(
-        names_from = source,
-        values_from = age:comorbid_sum
-    )
-
-care_wide <- care_wide %>%
-    pivot_wider(
-        names_from = source,
-        values_from = age:comorbid_sum
-    )
-
-#### Join
-dat_wide <- pat_wide %>%
-    left_join(care_wide) %>%
-    left_join(dyad_wide) %>%
-    select(-partid)
-
-#### Split into Numeric and Factor
-
-dat_wide_num <- dat_wide %>%
-    select(where(is.numeric))
-
-dat_wide_fac <- dat_wide %>%
-    select(where(is.factor))
-
-
-### Plot
-num_plot_list <- list()
-for(i in seq_along(dat_wide_num) {
-    dat <- dat[[i]]
-
-
- }
+table_one
 # Data Out______________________________________________________________________
 
 ## Table One--------------------------------------------------------------------
 path <- "OutData/"
 
-for (i in seq_along(table_one_print)) {
-    nam <- names(table_one_list)[[i]]
 
-    write.csv( ## use . rather than _ to handle matrix object
-        x = table_one_print[[i]],
-        file = paste0(
-            path,
-            nam,
-            "_table_one.csv"
-        )
-    )
-}
