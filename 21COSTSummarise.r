@@ -184,6 +184,7 @@ sum_care <- dat_care %>%
         label = pc_labels,
         statistic = n ~ "{N}"
     ) %>%
+    add_p()
     modify_header(all_stat_cols() ~ "**{level}**")
 
 sum_dyad <- dat_dyad %>%
@@ -213,6 +214,7 @@ sum_dyad <- dat_dyad %>%
         label = dyad_labels,
         statistic = n ~ "{N}"
     ) %>%
+    add_p()%>%
     modify_header(all_stat_cols() ~ "**{level}**")
 
 #### Only those with data across all 4 timepoints
@@ -262,15 +264,19 @@ sum_all_dyad <- dat_all_dyad %>%
         binary = factor(binary,
             levels = c(0:3),
             labels = c(
-                "No Financial Toxicity", "Both Patient and Caregiver", "Caregiver, Not Patient",
+                "No Financial Toxicity",
+                "Both Patient and Caregiver",
+                "Caregiver, Not Patient",
                 "Patient, Not Caregiver"
             )
         ),
         categorical = factor(categorical,
             levels = c(0:3),
             labels = c(
-                "No Financial Toxicity", "Equivalent Financial Toxicity",
-                "Caregiver Worse Than Patient", "Patient Worse Than Caregiver"
+                "No Financial Toxicity",
+                "Equivalent Financial Toxicity",
+                "Caregiver Worse Than Patient",
+                "Patient Worse Than Caregiver"
             )
         )
     ) %>%
@@ -279,7 +285,7 @@ sum_all_dyad <- dat_all_dyad %>%
         label = dyad_labels,
         statistic = n ~ "{N}"
     ) %>%
-    add_p() %>%
+    add_p()%>%
     modify_header(all_stat_cols() ~ "**{level}**")
 
 ### By Timepoint
@@ -290,7 +296,7 @@ for (i in 1:4) {
     dat <- tp_list[[i]]
     dat_sum <- dat %>%
         filter(src != "dyad") %>%
-        select(-c(partid, redcap_event_name)) %>%
+        select(-c(redcap_event_name)) %>%
         mutate(
             binary = factor(binary,
                 levels = c(0, 1),
@@ -303,10 +309,12 @@ for (i in 1:4) {
         ) %>%
         tbl_summary(
             by = src,
+            include = -partid,
             label = pc_labels,
             statistic = n ~ "{N}"
         ) %>%
-        add_p(test = all_continuous() ~ "t.test") %>%
+        add_p(test = all_continuous() ~ "paired.t.test",
+              group = partid) %>%
         modify_header(all_stat_cols() ~ "**{level}**")
     tp_sum_list[[i]] <- dat_sum
 }
@@ -317,7 +325,7 @@ for (i in 1:4) {
     dat <- all_tp_list[[i]]
     dat_sum <- dat %>%
         filter(src != "dyad") %>%
-        select(-c(partid, redcap_event_name)) %>%
+        select(-c(redcap_event_name)) %>%
         mutate(
             binary = factor(binary,
                 levels = c(0, 1),
@@ -330,15 +338,17 @@ for (i in 1:4) {
         ) %>%
         tbl_summary(
             by = src,
+            include = -partid,
             label = pc_labels,
             statistic = n ~ "{N}"
         ) %>%
-        add_p(test = all_continuous() ~ "t.test") %>%
+        add_p(test = all_continuous() ~ "paired.t.test",
+              group = partid) %>%
         modify_header(all_stat_cols() ~ "**{level}**")
     all_tp_sum_list[[i]] <- dat_sum
 }
 
-## Joined Tables ---------------------------------------------------------------
+## Joined Tables --------------------------------------------------------
 sum_src <- tbl_stack(
     tbls = list(sum_pat, sum_care, sum_dyad),
     group_header = c("Patient", "Caregiver", "Dyad")
@@ -371,3 +381,4 @@ sum_src
 sum_all_src
 sum_tp
 sum_all_tp
+
