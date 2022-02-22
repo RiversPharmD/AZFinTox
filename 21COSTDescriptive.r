@@ -178,19 +178,32 @@ for (i in 1:4) {
     dat_paired <- rbind(dat_paired, tp_list[[i]])
 }
 
-#### Split paired data into individual groups
-dat_pat <- dat_paired %>%
-    filter(src == "patient")
+### All Dyads with observations at any timepoint and baseline
+#### Filter for those with baseline
+dat_paired_pred <- dat_paired %>%
+    filter(partid %in% pred_dat$partid)
 
-dat_care <- dat_paired %>%
-    filter(src == "caregiver")
+#### Create empty output structures
+pred_tp_list <- list(
+    pred_tp_1 = NA,
+    pred_tp_2 = NA,
+    pred_tp_3 = NA,
+    pred_tp_4 = NA
+)
 
-dat_dyad <- dat_paired %>%
-    filter(src == "dyad")
+data_all_pred <- tibble()
+
+#### Split by Timepoint
+for (i in 1:4) {
+    pred_tp_list[[i]] <- dat_paired_pred %>%
+        filter(redcap_event_name == i) %>%
+        select(n, everything())
+    data_all_pred <- rbind(data_all_pred, pred_tp_list[[i]])
+}
 
 ### All dyads with observations across all timepoints
 #### Select only dyads with data across all timepoints
-dat_all_time_points <- dat_paired %>%
+dat_all_time_points <- dat_paired_pred %>%
     filter(partid %in% tp_list[[4]]$partid) %>%
     filter(partid %in% tp_list[[3]]$partid) %>%
     filter(partid %in% tp_list[[2]]$partid) %>%
