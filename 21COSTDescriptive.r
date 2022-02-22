@@ -258,7 +258,11 @@ dat_all_care <- dat_all_paired %>%
 dat_all_dyad <- dat_all_paired %>%
     filter(src == "dyad")
 
-### Table Labels
+
+# Analysis______________________________________________________________________
+## Formatting-------------------------------------------------------------------
+### Patient/Caregiver
+#### Category Labels
 pc_labels <- list(
     n ~ "Number of Participants",
     continuous ~ "Raw COST Score",
@@ -266,6 +270,20 @@ pc_labels <- list(
     categorical ~ "Severity of Financial Toxicity"
 )
 
+#### Binary Levels and Labels
+pc_bin <- list(
+    levels = c(0, 1),
+    labels = c("No", "Yes")
+)
+
+#### Categorical Level and Labels
+pc_cat <- list(
+    levels = c(0:3),
+    labels = c("None", "Mild", "Moderate", "Severe")
+)
+
+### Dyad
+#### Dyad Labels
 dyad_labels <- list(
     n ~ "Number of Participants",
     continuous ~ "Difference in Cost Score",
@@ -273,7 +291,27 @@ dyad_labels <- list(
     categorical ~ "Dfference in Severity of Financial Toxicity"
 )
 
-# Analysis______________________________________________________________________
+#### Binary Level and Labels
+dyad_bin <- list(
+    levels = c(0:3),
+    labels = c(
+        "No Financial Toxicity",
+        "Both Patient and Caregiver",
+        "Caregiver, Not Patient",
+        "Patient, Not Caregiver"
+    )
+)
+
+#### Categorical Level and Labels
+dyad_cat <- list(
+    levels = c(0:3),
+    labels = c(
+        "No Financial Toxicity",
+        "Equivalent Financial Toxicity",
+        "Caregiver Worse Than Patient",
+        "Patient Worse Than Caregiver"
+    )
+)
 
 ## Summary Tables---------------------------------------------------------------
 
