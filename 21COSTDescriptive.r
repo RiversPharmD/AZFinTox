@@ -318,237 +318,92 @@ dyad_cat <- list(
 ### By Observation
 
 #### All available observations
-sum_pat <- dat_pat %>%
-    select(-c(partid, src)) %>%
-    mutate(
-        binary = factor(binary,
-            levels = c(0, 1),
-            labels = c("No", "Yes")
-        ),
-        categorical = factor(categorical,
-            levels = c(0:3),
-            labels = c("None", "Mild", "Moderate", "Severe")
-        )
-    ) %>%
-    tbl_summary(
-        by = redcap_event_name,
-        label = pc_labels,
-        statistic = n ~ "{N}"
-    ) %>%
-    modify_header(all_stat_cols() ~ "**{level}**")
+dat_list <- list(
+    dat_pat,
+    dat_care,
+    dat_dyad
+)
 
-sum_care <- dat_care %>%
-    select(-c(partid, src)) %>%
-    mutate(
-        binary = factor(binary,
-            levels = c(0, 1),
-            labels = c("No", "Yes")
-        ),
-        categorical = factor(categorical,
-            levels = c(0:3),
-            labels = c("None", "Mild", "Moderate", "Severe")
-        )
-    ) %>%
-    tbl_summary(
-        by = redcap_event_name,
-        label = pc_labels,
-        statistic = n ~ "{N}"
-    ) %>%
-    add_p()
-    modify_header(all_stat_cols() ~ "**{level}**")
+source_list <- list(
+    "patient",
+    "caregiver",
+    "dyad"
+)
 
-sum_dyad <- dat_dyad %>%
-    select(-c(partid, src)) %>%
-    mutate(
-        binary = factor(binary,
-            levels = c(0:3),
-            labels = c(
-                "No Financial Toxicity",
-                "Both Patient and Caregiver",
-                "Caregiver, Not Patient",
-                "Patient, Not Caregiver"
-            )
-        ),
-        categorical = factor(categorical,
-            levels = c(0:3),
-            labels = c(
-                "No Financial Toxicity",
-                "Equivalent Financial Toxicity",
-                "Caregiver Worse Than Patient",
-                "Patient Worse Than Caregiver"
-            )
-        )
-    ) %>%
-    tbl_summary(
-        by = redcap_event_name,
-        label = dyad_labels,
-        statistic = n ~ "{N}"
-    ) %>%
-    add_p()%>%
-    modify_header(all_stat_cols() ~ "**{level}**")
+sum_list <- map2(
+    .x = dat_list,
+    .y = source_list,
+    ~ sum_observation(
+        dat = .x,
+        source = .y
+    )
+)
 
-#### Only those with data across all 4 timepoints
-sum_all_pat <- dat_all_pat %>%
-    select(-c(partid, src)) %>%
-    mutate(
-        binary = factor(binary,
-            levels = c(0, 1),
-            labels = c("No", "Yes")
-        ),
-        categorical = factor(categorical,
-            levels = c(0:3),
-            labels = c("None", "Mild", "Moderate", "Severe")
-        )
-    ) %>%
-    tbl_summary(
-        by = redcap_event_name,
-        label = pc_labels,
-        statistic = n ~ "{N}"
-    ) %>%
-    add_p() %>%
-    modify_header(all_stat_cols() ~ "**{level}**")
+#### All observations with baseline data
+dat_list <- list(
+    dat_pred_pat,
+    dat_pred_care,
+    dat_pred_dyad
+)
 
-sum_all_care <- dat_all_care %>%
-    select(-c(partid, src)) %>%
-    mutate(
-        binary = factor(binary,
-            levels = c(0, 1),
-            labels = c("No", "Yes")
-        ),
-        categorical = factor(categorical,
-            levels = c(0:3),
-            labels = c("None", "Mild", "Moderate", "Severe")
-        )
-    ) %>%
-    tbl_summary(
-        by = redcap_event_name,
-        label = pc_labels,
-        statistic = n ~ "{N}"
-    ) %>%
-    add_p() %>%
-    modify_header(all_stat_cols() ~ "**{level}**")
+sum_pred_list <- map2(
+    .x = dat_list,
+    .y = source_list,
+    ~ sum_observation(
+        dat = .x,
+        source = .y
+    )
+)
 
-sum_all_dyad <- dat_all_dyad %>%
-    select(-c(partid, src)) %>%
-    mutate(
-        binary = factor(binary,
-            levels = c(0:3),
-            labels = c(
-                "No Financial Toxicity",
-                "Both Patient and Caregiver",
-                "Caregiver, Not Patient",
-                "Patient, Not Caregiver"
-            )
-        ),
-        categorical = factor(categorical,
-            levels = c(0:3),
-            labels = c(
-                "No Financial Toxicity",
-                "Equivalent Financial Toxicity",
-                "Caregiver Worse Than Patient",
-                "Patient Worse Than Caregiver"
-            )
-        )
-    ) %>%
-    tbl_summary(
-        by = redcap_event_name,
-        label = dyad_labels,
-        statistic = n ~ "{N}"
-    ) %>%
-    add_p()%>%
-    modify_header(all_stat_cols() ~ "**{level}**")
+#### Only those with data across all 4 timepoints and baseline data
+dat_list <- list(
+    dat_all_pat,
+    dat_all_care,
+    dat_all_dyad
+)
+
+sum_all_list <- map2(
+    .x = dat_list,
+    .y = source_list,
+    ~ sum_observation(
+        dat = .x,
+        source = .y
+    )
+)
 
 ### By Timepoint
 
 #### All pairs at each timepoint
-tp_sum_list <- list()
-for (i in 1:4) {
-    dat <- tp_list[[i]]
-    dat_sum <- dat %>%
-        filter(src != "dyad") %>%
-        select(-c(redcap_event_name)) %>%
-        mutate(
-            binary = factor(binary,
-                levels = c(0, 1),
-                labels = c("No", "Yes")
-            ),
-            categorical = factor(categorical,
-                levels = c(0:3),
-                labels = c("None", "Mild", "Moderate", "Severe")
-            )
-        ) %>%
-        tbl_summary(
-            by = src,
-            include = -partid,
-            label = pc_labels,
-            statistic = n ~ "{N}"
-        ) %>%
-        add_p(test = all_continuous() ~ "paired.t.test",
-              group = partid) %>%
-        modify_header(all_stat_cols() ~ "**{level}**")
-    tp_sum_list[[i]] <- dat_sum
-}
+tp_sum_list <- map(
+    .x = tp_list,
+    ~ sum_timepoint(dat = .x)
+)
 
-#### Only pairs with data across all timepoints
-all_tp_sum_list <- list()
-for (i in 1:4) {
-    dat <- all_tp_list[[i]]
-    dat_sum <- dat %>%
-        filter(src != "dyad") %>%
-        select(-c(redcap_event_name)) %>%
-        mutate(
-            binary = factor(binary,
-                levels = c(0, 1),
-                labels = c("No", "Yes")
-            ),
-            categorical = factor(categorical,
-                levels = c(0:3),
-                labels = c("None", "Mild", "Moderate", "Severe")
-            )
-        ) %>%
-        tbl_summary(
-            by = src,
-            include = -partid,
-            label = pc_labels,
-            statistic = n ~ "{N}"
-        ) %>%
-        add_p(test = all_continuous() ~ "paired.t.test",
-              group = partid) %>%
-        modify_header(all_stat_cols() ~ "**{level}**")
-    all_tp_sum_list[[i]] <- dat_sum
-}
+#### All pairs with baseline data by timepoint
+tp_pred_sum_list <- map(
+    .x = pred_tp_list,
+    ~ sum_timepoint(dat = .x)
+)
+
+#### Only pairs with data across all 4 timepoints and baseline data
+tp_all_sum_list <- map(
+    .x = all_tp_list,
+    ~ sum_timepoint(dat = .x)
+)
 
 ## Joined Tables --------------------------------------------------------
-sum_src <- tbl_stack(
-    tbls = list(sum_pat, sum_care, sum_dyad),
-    group_header = c("Patient", "Caregiver", "Dyad")
-)
-sum_all_src <- tbl_stack(
-    tbls = list(sum_all_pat, sum_all_care, sum_all_dyad),
-    group_header = c("Patient", "Caregiver", "Dyad")
-)
-sum_tp <- tbl_merge(
-    tbls = tp_sum_list,
-    tab_spanner = c(
-        "Timepoint 1",
-        "Timepoint 2",
-        "Timepoint 3",
-        "Timepoint 4"
-    )
-)
+sum_src <- stack_list(list_in = sum_list)
+sum_pred_src <- stack_list(list_in = sum_pred_list)
+sum_all_src <- stack_list(list_in = sum_all_list)
 
-sum_all_tp <- tbl_merge(
-    tbls = all_tp_sum_list,
-    tab_spanner = c(
-        "Timepoint 1",
-        "Timepoint 2",
-        "Timepoint 3",
-        "Timepoint 4"
-    )
-)
+sum_tp <- merge_list(list_in = tp_sum_list)
+sum_pred_tp <- merge_list(list_in = tp_pred_sum_list)
+sum_all_tp <- merge_list(list_in = tp_all_sum_list)
 
 sum_src
+sum_pred_src
 sum_all_src
-sum_tp
-sum_all_tp
 
+sum_tp
+sum_pred_tp
+sum_all_tp
