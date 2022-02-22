@@ -7,6 +7,7 @@
 
 ## Depends on:
 ## 00Functions.r
+## 08PredictorMissingness.r
 ## 10COSTTidyJoin.r
 ## tidyverse
 
@@ -36,6 +37,9 @@ dat <- read_csv(
     file = "IntData/cost.csv"
 )
 
+pred_dat <- read_csv(
+    "IntData/dat_wide.csv"
+)
 ## Split files and select columns-----------------------------------------------
 ### Reformat data
 dat <- dat %>%
