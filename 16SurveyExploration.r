@@ -197,11 +197,12 @@ ggplot(
 
 #### Filters for surveys that are available
 dat_avail <- dat %>%
-  filter(available == 1) %>%
+  filter(available == 1,
+         is.na(observation)==FALSE) %>%
   select( -(score:available))
 
 #### Create df-column of partids
-dat_avail <- dat_avail %>%
+dat_avail_2 <- dat_avail %>%
   group_by(survey, observation, redcap_event_name) %>%
   nest() %>%
   mutate(dat_name = paste("tp", redcap_event_name,
@@ -212,8 +213,8 @@ dat_avail <- dat_avail %>%
     filter(is.na(observation) == FALSE)
 
 #### Names the datsets
-vec_dat_name <- dat_avail$dat_name
-df_list <- dat_avail$data
+vec_dat_name <- dat_avail_2$dat_name
+df_list <- dat_avail_2$data
 names(df_list) <- vec_dat_name
 
 #### Exports the .csvs
@@ -226,4 +227,4 @@ for (i in seq_along(df_list)) {
     write_csv(x = df_list[[i]],
               file = file_name[[i]])
 }
-
+write_csv(dat_avail,file = "IntData/SurveyAvailable.csv")
