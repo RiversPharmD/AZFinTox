@@ -227,7 +227,28 @@ for (i in 1:4) {
     dat_all_paired <- rbind(dat_all_paired, all_tp_list[[i]])
 }
 
-#### Split by Source
+### Split by Source
+#### All Dyads With Survey Data
+dat_pat <- dat_paired %>%
+    filter(src == "patient")
+
+dat_care <- dat_paired %>%
+    filter(src == "caregiver")
+
+dat_dyad <- dat_paired %>%
+    filter(src == "dyad")
+
+#### All Dyads With Survey Data and baseline
+dat_pred_pat <- dat_paired_pred %>%
+    filter(src == "patient")
+
+dat_pred_care <- dat_paired_pred %>%
+    filter(src == "caregiver")
+
+dat_pred_dyad <- dat_paired_pred %>%
+    filter(src == "dyad")
+
+#### All Dyads with Survey Data Across all 4 timepoints
 dat_all_pat <- dat_all_paired %>%
     filter(src == "patient")
 
