@@ -37,15 +37,16 @@ dat <- read_csv(
 )
 
 ## Split files and select columns-----------------------------------------------
+### Reformat data
 dat <- dat %>%
     mutate(
-        src = case_when(
+        src = case_when( ## Rename Source
             str_detect(observation, "_p") == TRUE ~ "patient",
             str_detect(observation, "_c$") == TRUE ~ "caregiver",
             str_detect(observation, "con_") == TRUE ~ "dyad",
             TRUE ~ "ERROR"
         ),
-        type = case_when(
+        type = case_when( ## Rename Outcome Type
             str_detect(observation, "sum") |
                 str_detect(observation, "_raw") == TRUE ~ "continuous",
             str_detect(observation, "lgl") |
@@ -55,20 +56,23 @@ dat <- dat %>%
         )
     ) %>%
     select(-c(observation, survey)) %>%
-    pivot_wider(
+    pivot_wider( ## Make wide data for ease of analysis
         names_from = type,
         values_from = score
     )
 
-
 ### All observations across timepoints
+#### Create output structures
 tp_list <- list(
     dat_tp_1 = NA,
     dat_tp_2 = NA,
     dat_tp_3 = NA,
     dat_tp_4 = NA
 )
+
 dat_paired <- tibble()
+
+#### Identify dyads with data available at each timepoint
 for (i in 1:4) {
     tp_list[[i]] <- dat %>%
         import_available_survey_data(
@@ -76,16 +80,15 @@ for (i in 1:4) {
             survey = "COST",
             obs = "dyad"
         ) %>%
-        mutate(
+        mutate( ## add these for summarising
             redcap_event_name = i,
             n = 1
         ) %>%
-        select(n, everything())
+        select(n, everything()) ## Move n to the front for summarising
     dat_paired <- rbind(dat_paired, tp_list[[i]])
 }
 
-
-
+#### Split paired data into individual groups
 dat_pat <- dat_paired %>%
     filter(src == "patient")
 
@@ -96,12 +99,14 @@ dat_dyad <- dat_paired %>%
     filter(src == "dyad")
 
 ### All dyads with observations across all timepoints
+#### Select only dyads with data across all timepoints
 dat_all_time_points <- dat_paired %>%
     filter(partid %in% tp_list[[4]]$partid) %>%
     filter(partid %in% tp_list[[3]]$partid) %>%
     filter(partid %in% tp_list[[2]]$partid) %>%
     filter(partid %in% tp_list[[1]]$partid)
 
+#### Cast empty output structures
 all_tp_list <- list(
     dat_all_tp_1 = NA,
     dat_all_tp_2 = NA,
@@ -110,6 +115,8 @@ all_tp_list <- list(
 )
 
 dat_all_paired <- tibble()
+
+#### Split by Timepoint
 for (i in 1:4) {
     all_tp_list[[i]] <- dat_all_time_points %>%
         filter(redcap_event_name == i) %>%
@@ -117,6 +124,7 @@ for (i in 1:4) {
     dat_all_paired <- rbind(dat_all_paired, all_tp_list[[i]])
 }
 
+#### Split by Source
 dat_all_pat <- dat_all_paired %>%
     filter(src == "patient")
 
