@@ -72,31 +72,31 @@ for (i in seq_along(df_list)) {
                 . == 4 ~ 0
             )
         ))
+    ##### Count_NA add
+    dat <- dat %>%
+        mutate(count_na = rowSums(is.na(.)))
+
+    #### Filter for non-answers
+    dat <- dat %>%
+        filter(count_na < 3) ## Keeps 2 or fewer per conversation
 
     ##### Summarize scores
     dat <- dat %>%
         rowwise() %>% ## swaps it so I can mutate this way
         mutate(
-            sum_adj = sum(c_across(facit_cost01:facit_cost11), na.rm = TRUE),
-            sum = sum(c_across(facit_cost01:facit_cost11))
+            sum = sum(c_across(facit_cost01:facit_cost11), na.rm = TRUE)
         ) %>%
-        ungroup() %>%
-        mutate(
-            count_na = rowSums(is.na(.)), # count number of missing
-            na_adjust = 4 * count_na, # multiply by total points possible
-            sum_max = sum_adj + na_adjust, # create upper bound cost score
-        )
+        ungroup()
 
     #### Filter for non-answers
-    dat <- dat %>%
-        filter(count_na != 11)
+
 
     #### Dichotomize COST
 
 
     dat <- dat %>%
         mutate(
-            cost_lgl = if_else(sum_max < 26, 1, 0)
+            cost_lgl = if_else(sum < 26, 1, 0)
         )
 
 
@@ -104,10 +104,10 @@ for (i in seq_along(df_list)) {
 
     dat <- dat %>%
         mutate(cost_cat = case_when(
-            sum_max >= 26 ~ 0,
-            sum_max < 26 & sum_max >= 14 ~ 1,
-            sum_max < 14 & sum_max > 0 ~ 2,
-            sum_max == 0 ~ 3
+            sum >= 26 ~ 0,
+            sum < 26 & sum >= 14 ~ 1,
+            sum < 14 & sum > 0 ~ 2,
+            sum == 0 ~ 3
         ))
 
     df_list_scored[[i]] <- dat
@@ -119,8 +119,7 @@ for (i in seq_along(df_list)) {
 ### Create narrow datasets
 dat_narrow_p <- df_list_scored[[1]] %>%
     select(partid, redcap_event_name,
-        "sum_p" = sum, # this means that there are some patients who will show
-        # up in the lgl/cat that do not show up in the sum
+        "sum_p" = sum,
         "lgl_p" = cost_lgl,
         "cat_p" = cost_cat
     )
@@ -144,13 +143,7 @@ dat_c <- df_list_scored[[2]] %>%
 
 dat_full <- rbind(dat_p, dat_c)
 
-#### Pull out partid's of indiviudals with <11 but >0 NAs
-dat_missing_some_answers <- dat_full %>%
-    filter(count_na > 0 & count_na < 11)
 
-#### Filter for missingness
-dat_full <- dat_full %>%
-    filter(count_na < 11)
 
 ### Create concordance variable
 dat <- dat %>%
@@ -185,4 +178,3 @@ dat <- dat %>%
 # Data out______________________________________________________________________
 write_csv(dat, file = "IntData/cost.csv")
 write_csv(dat_full, file = "IntData/cost_full.csv")
-write_csv(dat_missing_some_answers, file = "IntData/COST_missing_answers.csv")
