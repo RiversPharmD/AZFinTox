@@ -23,7 +23,22 @@ library(psych)
 source("00Functions.r")
 
 ## Functions
+create_timepoints <- function(dat) {
+    timepoints <- list()
+    for (i in 1:4) {
 
+        # Read in data to include only those where both
+        # dyad members are available
+        dat_for_list <- import_available_survey_data(
+            data = dat,
+            timepoint = i,
+            survey = "COST",
+            obs = "dyad"
+        )
+        timepoints[[i]] <- dat_for_list
+    }
+    return(timepoints)
+}
 loop_correlation <- function(list_in) {
     ### Initiate Empty Lists
     cost_cor_list <- list()
