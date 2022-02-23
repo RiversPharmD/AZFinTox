@@ -206,49 +206,16 @@ cost_cohort_three <- cost_full %>%
     filter(partid %in% dat_cohort3$partid)
 
 ### Create timepoint lists
-c1_timepoints <- list()
-for (i in 1:4) {
-
-    # Read in data to include only those where both dyad members are available
-    dat <- import_available_survey_data(
-        data = cost_cohort_one,
-        timepoint = i,
-        survey = "COST",
-        obs = "dyad"
-    )
-    c1_timepoints[[i]] <- dat
-}
-
-c2_timepoints <- list()
-for (i in 1:4) {
-
-    # Read in data to include only those where both dyad members are available
-    dat <- import_available_survey_data(
-        data = cost_cohort_two,
-        timepoint = i,
-        survey = "COST",
-        obs = "dyad"
-    )
-    c2_timepoints[[i]] <- dat
-}
-c3_timepoints <- list()
-for (i in 1:4) {
-
-    # Read in data to include only those where both dyad members are available
-    dat <- import_available_survey_data(
-        data = cost_cohort_three,
-        timepoint = i,
-        survey = "COST",
-        obs = "dyad"
-    )
-    c3_timepoints[[i]] <- dat
-}
+c1_timepoints <- create_timepoints(cost_cohort_one)
+c2_timepoints <- create_timepoints(cost_cohort_two)
+c3_timepoints <- create_timepoints(cost_cohort_three)
 # Analysis
 
 ## 1: Crude correlation at each timepoint.
 c1_correlation <- loop_correlation(list_in = c1_timepoints)
 c2_correlation <- loop_correlation(list_in = c2_timepoints)
 c3_correlation <- loop_correlation(list_in = c3_timepoints)
+
 ## 2. Chronbach's alpha
 
 ### Intiate empty tibble
