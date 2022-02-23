@@ -16,13 +16,13 @@
 
 ###############################################################################
 
-## Packages
+# Packages______________________________________________________________________
 library(tidyverse)
 library(epiR)
 library(psych)
 source("00Functions.r")
 
-## Functions
+# Functions_____________________________________________________________________
 create_timepoints <- function(dat) {
     timepoints <- list()
     for (i in 1:4) {
@@ -39,6 +39,7 @@ create_timepoints <- function(dat) {
     }
     return(timepoints)
 }
+
 loop_correlation <- function(list_in) {
     ### Initiate Empty Lists
     cost_cor_list <- list()
@@ -50,7 +51,7 @@ loop_correlation <- function(list_in) {
         # Reshape data structure
         dat_wide <- lengthen_widen(
             data = dat, start_col = "facit_cost01",
-            end_col = "sum"
+            end_col = "facit_cost11"
         )
 
         # Summarise Raw Scores
@@ -141,8 +142,6 @@ creat_corr_table <- function(dat) {
     return(df)
 }
 
-
-
 lengthen_widen <- function(data, start_col, end_col, names = "question",
                            values = "score") {
     dat_long <- data %>%
@@ -169,25 +168,65 @@ summarise_survey <- function(data) {
             sd_cg = sd(caregiver)
         )
 }
-## Data In
+loop_chronbach <- function(list_in) {
 
-### Predictors
-#### Wide
+
+    ### Intiate empty tibble
+    cost_chron_tibble <- tibble(
+        tp = c(NA, NA, NA, NA),
+        patient = c(NA, NA, NA, NA),
+        caregiver = c(NA, NA, NA, NA)
+    )
+
+    ### Loop over timepoints
+    for (i in 1:4) {
+
+        # Store timepoint
+        cost_chron_tibble$tp[i] <- i
+
+        # Patient
+        ## filter data
+        dat <- list_in[[i]] %>%
+            filter(src == "patient") %>%
+            select(facit_cost01:facit_cost11)
+
+        ## Calculate Chronbach Alpha
+        chr_a <- psych::alpha(dat)$total[[1]]
+
+        ## Store Value
+        cost_chron_tibble$patient[i] <- chr_a
+
+        # Caregiver
+        ## Filter Data
+        dat <- list_in[[i]] %>%
+            filter(src == "caregiver") %>%
+            select(facit_cost01:facit_cost11)
+
+        ## Calculate Chronbach Alpha
+        chr_a <- psych::alpha(dat)$total[[1]]
+
+        ## Store Value
+        cost_chron_tibble$caregiver[i] <- chr_a
+    }
+    return(cost_chron_tibble)
+}
+# Data In_______________________________________________________________________
+## Predictors-------------------------------------------------------------------
+### Wide
 pred_wide <- read_csv(file = "IntData/dat_wide.csv")
 
-### Cohorts
-#### Cohort 3
+## Cohorts----------------------------------------------------------------------
+### Cohort 3
 dat_cohort3 <- read_csv(file = "IntData/CohortThree.csv")
 
-### Surveys
-#### Cost
+## Surveys----------------------------------------------------------------------
+### Cost
 cost_full <- read_csv(
     file = "IntData/cost_full.csv"
 )
 
-# Data transformation
-## drop unused outcomes because they break a join later
-
+# Data transformation___________________________________________________________
+## drop unused outcomes---------------------------------------------------------
 cost_full <- cost_full %>%
     select(-c(
         cost_lgl,
@@ -195,10 +234,9 @@ cost_full <- cost_full %>%
         count_na
     ))
 
-## Create Cohorts in lists
+## Create Cohorts in lists------------------------------------------------------
 ### Define Cohorts
 cost_cohort_one <- cost_full
-
 cost_cohort_two <- cost_full %>%
     filter(partid %in% pred_wide$partid)
 
@@ -209,52 +247,17 @@ cost_cohort_three <- cost_full %>%
 c1_timepoints <- create_timepoints(cost_cohort_one)
 c2_timepoints <- create_timepoints(cost_cohort_two)
 c3_timepoints <- create_timepoints(cost_cohort_three)
-# Analysis
 
+# Analysis______________________________________________________________________
 ## 1: Crude correlation at each timepoint.
 c1_correlation <- loop_correlation(list_in = c1_timepoints)
 c2_correlation <- loop_correlation(list_in = c2_timepoints)
 c3_correlation <- loop_correlation(list_in = c3_timepoints)
 
 ## 2. Chronbach's alpha
-
-### Intiate empty tibble
-cost_chron_tibble <- tibble(
-    tp = c(NA, NA, NA, NA),
-    patient = c(NA, NA, NA, NA),
-    caregiver = c(NA, NA, NA, NA)
-)
-
-### Loop over timepoints
-for (i in 1:4) {
-
-    # Store timepoint
-    cost_chron_tibble$tp[i] <- i
-
-    # Patient
-    ## filter data
-    dat <- cost_dat_avail[[i]] %>%
-        filter(src == "patient") %>%
-        select(facit_cost01:facit_cost11)
-
-    ## Calculate Chronbach Alpha
-    chr_a <- alpha(dat)$total[[1]]
-
-    ## Store Value
-    cost_chron_tibble$patient[i] <- chr_a
-
-    # Caregiver
-    ## Filter Data
-    dat <- cost_dat_avail[[i]] %>%
-        filter(src == "caregiver") %>%
-        select(facit_cost01:facit_cost11)
-
-    ## Calculate Chronbach Alpha
-    chr_a <- alpha(dat)$total[[1]]
-
-    ## Store Value
-    cost_chron_tibble$caregiver[i] <- chr_a
-}
+c1_chronbach <- loop_chronbach(list_in = c1_timepoints)
+c2_chronbach <- loop_chronbach(list_in = c2_timepoints)
+c3_chronbach <- loop_chronbach(list_in = c3_timepoints)
 # Tidying
 ## 1. Raw Correlation
 ### Create output list
