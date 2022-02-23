@@ -24,11 +24,38 @@ source("00Functions.r")
 
 ## Functions
 
+loop_correlation <- function(list_in) {
+    ### Initiate Empty Lists
+    cost_cor_list <- list()
 
+    ### Loop over timepoints
+    for (i in 1:4) {
+        dat <- list_in[[i]]
+
+        # Reshape data structure
+        dat_wide <- lengthen_widen(
+            data = dat, start_col = "facit_cost01",
+            end_col = "sum"
+        )
+
+        # Summarise Raw Scores
+        dat_sum <- summarise_survey(data = dat_wide)
+
+        # Create Correlation table
+        dat_cor <- creat_corr_table(dat = dat_wide)
+
+        # Join raw and correlation
+        dat_raw_cor <- dat_sum %>%
+            left_join(dat_cor)
+
+        cost_cor_list[[i]] <- dat_raw_cor
+    }
+    return(cost_cor_list)
+}
 
 calc_correlation <- function(dat, question) {
 
-    ## Creates empty list for data
+    ## Creates empty tibble for data
     ques_df <- tibble(
         question = NA,
         pearson_cor = NA,
@@ -38,7 +65,7 @@ calc_correlation <- function(dat, question) {
         ccc_low = NA,
         ccc_high = NA
     )
-    ## Populates question into list
+    ## Populates question into tibble
     ques_df$question <- question
     ## Pulls data out of dataframe
     dat <- dat %>%
@@ -147,62 +174,74 @@ cost_full <- read_csv(
     file = "IntData/cost_full.csv"
 )
 
+
+cost_cohort_one <- cost_full
+
 # Data transformation
 
 ## drop unused outcomes because they break a join later
 
-cost$cost_full <- cost$cost_full %>%
+cost_full <- cost_full %>%
     select(-c(
         cost_lgl,
         cost_cat,
         count_na
     ))
-# Analysis
 
-## 1: Crude correlation at each timepoint.
+## Create Cohorts in lists
+### Define Cohorts
+cost_cohort_one <- cost_full
 
-### Initiate Empty Lists
+cost_cohort_two <- cost_full %>%
+    filter(partid %in% pred_wide$partid)
 
-#### Cost data available (First Item in Loop, reused for other sections)
+cost_cohort_three <- cost_full %>%
+    filter(partid %in% dat_cohort3$partid)
 
-cost_dat_avail <- list()
-#### Cost Correlation output
-cost_cor_list <- list()
-
-### Loop over timepoints
-
+### Create timepoint lists
+c1_timepoints <- list()
 for (i in 1:4) {
 
     # Read in data to include only those where both dyad members are available
     dat <- import_available_survey_data(
-        data = cost$cost_full,
+        data = cost_cohort_one,
         timepoint = i,
         survey = "COST",
         obs = "dyad"
     )
-
-    # Put in list to reuse later
-    cost_dat_avail[[i]] <- dat
-
-    # Reshape data structure
-    dat_wide <- lengthen_widen(
-        data = dat, start_col = "facit_cost01",
-        end_col = "sum"
-    )
-
-    # Summarise Raw Scores
-    dat_sum <- summarise_survey(data = dat_wide)
-
-    # Create Correlation table
-    dat_cor <- creat_corr_table(dat = dat_wide)
-
-    # Join raw and correlation
-    dat_raw_cor <- dat_sum %>%
-        left_join(dat_cor)
-
-    cost_cor_list[[i]] <- dat_raw_cor
+    c1_timepoints[[i]] <- dat
 }
 
+c2_timepoints <- list()
+for (i in 1:4) {
+
+    # Read in data to include only those where both dyad members are available
+    dat <- import_available_survey_data(
+        data = cost_cohort_two,
+        timepoint = i,
+        survey = "COST",
+        obs = "dyad"
+    )
+    c2_timepoints[[i]] <- dat
+}
+c3_timepoints <- list()
+for (i in 1:4) {
+
+    # Read in data to include only those where both dyad members are available
+    dat <- import_available_survey_data(
+        data = cost_cohort_three,
+        timepoint = i,
+        survey = "COST",
+        obs = "dyad"
+    )
+    c3_timepoints[[i]] <- dat
+}
+# Analysis
+
+## 1: Crude correlation at each timepoint.
+c1_correlation <- loop_correlation(list_in = c1_timepoints)
+c2_correlation <- loop_correlation(list_in = c2_timepoints)
+c3_correlation <- loop_correlation(list_in = c3_timepoints)
 ## 2. Chronbach's alpha
 
 ### Intiate empty tibble
