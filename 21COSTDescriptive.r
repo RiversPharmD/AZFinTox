@@ -407,3 +407,33 @@ sum_all_src
 sum_tp
 sum_pred_tp
 sum_all_tp
+
+# Data Out______________________________________________________________________
+## Cohorts
+path <- "IntData/"
+
+### All Dyads with Survey Data
+write_csv(
+    x = dat_paired,
+    file = paste0(
+        path,
+        "CohortOne.csv"
+    )
+)
+
+### All Dyads with Survey Data and Baseline Characteristics
+write_csv(
+    x = dat_paired_pred,
+    file = paste0(
+        path,
+        "CohortTwo.csv"
+    )
+)
+### All Dyads with survey data across 4 timepoints and Baseline characteristics
+write_csv(
+    x = dat_all_paired,
+    file = paste0(
+        path,
+        "CohortThree.csv"
+    )
+)
