@@ -376,41 +376,22 @@ tidy_chronbach <- map_df(
     .x = chron,
     .f = rbind
 )
-# Output
-## Data Out
 
-### Int Data
-path <- "IntData/CorrTables/"
-for (i in 1:4) {
-    write_csv(
-        x = cost_cor_list[[i]],
-        file = paste0(path, "tp", i, "_cost_dyad.csv")
-    )
-}
-#### 2. Chronbach's
+# Output________________________________________________________________________
+## Tidy-------------------------------------------------------------------------
+path <- "OutData/CorrTables/"
+
+### Correlation
 write_csv(
-    x = cost_chron_tibble,
-    file = paste0(
-        path,
-        "cost_chronbach.csv"
-    )
+    x = tidy_corr,
+    file = paste0(path, "COST_correlation.csv")
 )
 
-
-### Clean Data
-path <- "OutData/CorrTables/"
-#### 1. Raw Correlation
-for (i in 1:4) {
-    write_csv(
-        x = tidy_cost_cor_list[[i]],
-        file = paste0(path, "tp", i, "_cost_dyad.csv")
-    )
-}
-#### 2. Chronbach's
+### Chronbach's
 write_csv(
-    x = tidy_cost_chron_tibble,
+    x = tidy_chronbach,
     file = paste0(
         path,
-        "cost_chronbach.csv"
+        "COST_chronbach.csv"
     )
 )
