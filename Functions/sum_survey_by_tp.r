@@ -3,7 +3,7 @@
 #' Count the number of observations available for a survey at a given timepoint
 
 #' @param dat a dataframe with survey data
-#' @param obs a character descriping the observation we want to summarise by
+#' @param obs a character descriping the observation to summarise by
 #' @param tp a numeric value representing the timepoint of interest
 
 
