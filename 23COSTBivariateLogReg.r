@@ -158,7 +158,12 @@ pred_names <- pred_wide %>%
 ## Join with outcomes-----------------------------------------------------------
 
 pred_outcomes <- pred_wide %>%
-    inner_join(cost_outcomes)
+    inner_join(cost_outcomes) %>%
+    select(
+        age_p, age_c, gender_p, gender_c, ethnicity_p, ethnicity_c,
+        race_p, race_c, education_p, education_c, comorbid_sum_p, comorbid_sum_c,
+        everything()
+    )
 
 # Run Models____________________________________________________________________
 ## Labels
