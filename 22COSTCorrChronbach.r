@@ -172,9 +172,7 @@ summarise_survey <- function(data) {
 ## Data In
 
 ### Predictors
-
 #### Wide
-
 pred_wide <- read_csv(file = "IntData/dat_wide.csv")
 
 ### Cohorts
@@ -182,18 +180,12 @@ pred_wide <- read_csv(file = "IntData/dat_wide.csv")
 dat_cohort3 <- read_csv(file = "IntData/CohortThree.csv")
 
 ### Surveys
-
 #### Cost
-
 cost_full <- read_csv(
     file = "IntData/cost_full.csv"
 )
 
-
-cost_cohort_one <- cost_full
-
 # Data transformation
-
 ## drop unused outcomes because they break a join later
 
 cost_full <- cost_full %>%
