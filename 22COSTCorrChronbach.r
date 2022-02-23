@@ -210,6 +210,20 @@ loop_chronbach <- function(list_in) {
     }
     return(cost_chron_tibble)
 }
+
+tidy_chronbach <- function(data) {
+    tidy_data <- data %>%
+        mutate(across(patient:caregiver,
+            round,
+            digits = 2
+        )) %>%
+        rename(
+            "Timepoint" = tp,
+            "Patient" = patient,
+            "Caregiver" = caregiver
+        )
+    return(tidy_data)
+}
 # Data In_______________________________________________________________________
 ## Predictors-------------------------------------------------------------------
 ### Wide
@@ -322,16 +336,19 @@ for (i in 1:4) {
     tidy_cost_cor_list[[i]] <- dat
 }
 ## 2. Chronbach
-tidy_cost_chron_tibble <- cost_chron_tibble %>%
-    mutate(across(patient:caregiver,
-        round,
-        digits = 2
-    )) %>%
-    rename(
-        "Timepoint" = tp,
-        "Patient" = patient,
-        "Caregiver" = caregiver
-    )
+chron <- list(
+    c1_tidy_chronbach <- tidy_chronbach(c1_chronbach) %>%
+        mutate(Cohort = 1),
+    c2_tidy_chronbach <- tidy_chronbach(c2_chronbach) %>%
+        mutate(Cohort = 2),
+    c3_tidy_chronbach <- tidy_chronbach(c3_chronbach) %>%
+        mutate(Cohort = 3)
+)
+
+tidy_chronbach <- map_df(
+    .x = chron,
+    .f = rbind
+)
 # Output
 ## Data Out
 
