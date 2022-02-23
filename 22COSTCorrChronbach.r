@@ -313,11 +313,7 @@ cost_full <- cost_full %>%
     select(-c(
         cost_lgl,
         cost_cat,
-        count_na,
-        sum_adj,
-        sum,
-        na_adjust,
-        sum_max
+        count_na
     ))
 
 ## Create Cohorts in lists------------------------------------------------------
