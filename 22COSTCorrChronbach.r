@@ -4,6 +4,7 @@
 ## Depends:
 ## O7PredictorExploration.r
 ## 16SurveyExploration.r
+## 21CostDescriptive.r
 ## tidyverse
 ## epiR
 
@@ -134,25 +135,16 @@ summarise_survey <- function(data) {
 
 pred_wide <- read_csv(file = "IntData/dat_wide.csv")
 
-#### Long
-
-pred_long <- read_csv(
-    file = "IntData/dat_long.csv",
-    col_types = "ffcc"
-)
+### Cohorts
+#### Cohort 3
+dat_cohort3 <- read_csv(file = "IntData/CohortThree.csv")
 
 ### Surveys
 
 #### Cost
 
-cost <- list(
-    cost_narrow = read_csv(
-        file = "IntData/cost.csv",
-        col_types = "ffffn"
-    ),
-    cost_full = read_csv(
-        file = "IntData/cost_full.csv"
-    )
+cost_full <- read_csv(
+    file = "IntData/cost_full.csv"
 )
 
 # Data transformation
