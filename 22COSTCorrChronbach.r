@@ -263,16 +263,17 @@ c2_timepoints <- create_timepoints(cost_cohort_two)
 c3_timepoints <- create_timepoints(cost_cohort_three)
 
 # Analysis______________________________________________________________________
-## 1: Crude correlation at each timepoint.
+## 1: Crude correlation at each timepoint---------------------------------------
 c1_correlation <- loop_correlation(list_in = c1_timepoints)
 c2_correlation <- loop_correlation(list_in = c2_timepoints)
 c3_correlation <- loop_correlation(list_in = c3_timepoints)
 
-## 2. Chronbach's alpha
+## 2. Chronbach's alpha---------------------------------------------------------
 c1_chronbach <- loop_chronbach(list_in = c1_timepoints)
 c2_chronbach <- loop_chronbach(list_in = c2_timepoints)
 c3_chronbach <- loop_chronbach(list_in = c3_timepoints)
-# Tidying
+
+# Tidying_______________________________________________________________________
 ## 1. Raw Correlation
 ### Create output list
 tidy_cost_cor_list <- list()
