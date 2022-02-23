@@ -18,6 +18,23 @@
 ## Packages:
 library(tidyverse)
 source("00Functions.r")
+
+## Functions
+collapse_vars <- function(dat) {
+    dat <- dat %>%
+        mutate(
+            education = case_when(
+                education == 0 | education == 1 ~ 0,
+                education == 2 | education == 3 ~ 1,
+                education == 4 ~ 2
+            ),
+            income = case_when(
+                income == 0 | income == 1 | income == 2 ~ 0,
+                income == 3 | income == 4 | income == 5 ~ 1,
+                income == 6 ~ 2
+            )
+        )
+}
 ## Data in
 
 ### Patient
@@ -115,6 +132,14 @@ dat_care <- dat_care %>%
     ) %>%
     select(!contains("."))
 dat_care$role <- NULL
+
+### Collapse Income and Education
+dat_pat <- dat_pat %>%
+    collapse_vars()
+
+dat_care <- dat_care %>%
+    collapse_vars()
+
 ### Make long
 
 #### Patient
@@ -133,4 +158,3 @@ demo <- dat_pat_long %>%
 ## Data Out
 
 write_csv(x = demo, file = "IntData/demo.csv")
-

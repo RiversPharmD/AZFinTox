@@ -141,7 +141,7 @@ table_one <- tbl_stack(
 ) %>%
     as_flex_table() %>%
     flextable::footnote(
-        i = c(22, 61), ## manually added numbers
+        i = c(20, 59), ## manually added numbers
         j = 2,
         value = flextable::as_paragraph("Comorbidities include: Heart Disease,
     High Blood Pressure, Lung Disease, Diabetes, Ulcer or Stomach Disease,

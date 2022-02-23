@@ -97,12 +97,10 @@ label_factors <- function(dat) {
     #### Education
 
     dat$education <- factor(dat$education,
-        levels = c(0:4),
+        levels = c(0:2),
         labels = c(
-            "Less than High School",
-            "High School",
-            "Less than 4 Year Degree",
-            "4 Year Degree",
+            "Up to High School Diploma",
+            "Some College up to a 4 Year Degree",
             "Education beyond 4 Year Degree"
         )
     )
@@ -116,14 +114,10 @@ label_factors <- function(dat) {
     #### Income
 
     dat$income <- factor(dat$income,
-        levels = c(0:6),
+        levels = c(0:2),
         labels = c(
-            "Less than 20k",
-            "20-39k",
-            "40-59k",
-            "60-79k",
-            "80-99k",
-            "100-120k",
+            "Less than 59k",
+            "60-120k",
             "Greater than 120k"
         )
     )
