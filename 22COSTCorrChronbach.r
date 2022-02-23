@@ -162,10 +162,10 @@ summarise_survey <- function(data) {
     data_out <- data %>%
         group_by(question) %>%
         summarise(
-            mean_pt = mean(patient),
-            sd_pt = sd(patient),
-            mean_cg = mean(caregiver),
-            sd_cg = sd(caregiver)
+            mean_pt = mean(patient, na.rm=TRUE),
+            sd_pt = sd(patient, na.rm=TRUE),
+            mean_cg = mean(caregiver, na.rm=TRUE),
+            sd_cg = sd(caregiver, na.rm=TRUE)
         )
 }
 loop_chronbach <- function(list_in) {
