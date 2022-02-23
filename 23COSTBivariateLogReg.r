@@ -161,6 +161,28 @@ pred_outcomes <- pred_wide %>%
     inner_join(cost_outcomes)
 
 # Run Models____________________________________________________________________
+## Labels
+lr_labels <- list(
+    age_p ~ "Patient Age",
+    gender_p ~ "Patient Gender",
+    ethnicity_p ~ "Patient Ethnicity",
+    race_p ~ "Patient Race",
+    education_p ~ "Patient Education",
+    comorbid_sum_p ~ "Patient Comorbidities",
+    age_c ~ "Caregiver Age",
+    gender_c ~ "Caregiver Gender",
+    ethnicity_c ~ "Caregiver Ethnicity",
+    race_c ~ "Caregiver Race",
+    education_c ~ "Caregiver Education",
+    comorbid_sum_c ~ "Caregiver Comorbidities",
+    location ~ "Study Site",
+    marital ~ "Marital Status",
+    stage ~ "Tumor Stage",
+    dx ~ "Tumor Site",
+    income ~ "Household Income",
+    children ~ "Presence of Children Under 18 Years Old"
+)
+
 ## Logistic Regression----------------------------------------------------------
 ### Build empty list
 lr_list <- list()
@@ -178,6 +200,7 @@ for (i in 1:3) {
         filter(is.na(age_p) == FALSE) %>%
         tbl_uvregression(
             y = outcome_list[[i]],
+            label = lr_labels,
             method = glm,
             include = -outcome_exclude,
             method.args = list(family = binomial),
