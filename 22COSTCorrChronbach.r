@@ -224,6 +224,74 @@ tidy_chronbach <- function(data) {
         )
     return(tidy_data)
 }
+tidy_correlation <- function(list_in) {
+    out_list <- list()
+    ### Loop over timepoints
+    for (i in 1:4) {
+
+        # Round
+
+        dat <- list_in[[i]] %>%
+            mutate(across(mean_pt:ccc_high,
+                round,
+                digits = 2
+            ))
+
+        # Merge Patient
+
+        dat <- dat %>%
+            mutate(patient_mean_sd = paste0(
+                mean_pt,
+                " (",
+                sd_pt,
+                ")"
+            )) %>%
+            select(-(mean_pt:sd_pt))
+
+        # Merge Caregiver
+
+        dat <- dat %>%
+            mutate(caregiver_mean_sd = paste0(
+                mean_cg,
+                " (",
+                sd_cg,
+                ")"
+            )) %>%
+            select(-(mean_cg:sd_cg))
+
+        # Merge Pearson
+
+        dat <- dat %>%
+            mutate(pearson_95_ci = paste0(
+                pearson_cor,
+                " (",
+                pearson_low,
+                "-",
+                pearson_high, ")"
+            )) %>%
+            select(-(pearson_cor:pearson_high))
+
+        # Merge CCC
+        dat <- dat %>%
+            mutate(ccc_95_ci = paste0(
+                ccc_cor,
+                " (",
+                ccc_low,
+                "-",
+                ccc_high, ")"
+            )) %>%
+            select(-(ccc_cor:ccc_high))
+        # Add timepoint
+        dat <- dat %>%
+            mutate(timepoint = i)
+        # Store in list
+        out_list[[i]] <- dat
+    }
+    df_out <- map_df(
+        .x = out_list,
+        .f = rbind
+    )
+}
 # Data In_______________________________________________________________________
 ## Predictors-------------------------------------------------------------------
 ### Wide
@@ -278,69 +346,23 @@ c2_chronbach <- loop_chronbach(list_in = c2_timepoints)
 c3_chronbach <- loop_chronbach(list_in = c3_timepoints)
 
 # Tidying_______________________________________________________________________
-## 1. Raw Correlation
-### Create output list
-tidy_cost_cor_list <- list()
-### Loop over timepoints
-for (i in 1:4) {
+## 1. Raw Correlation-----------------------------------------------------------
+corr <- list(
+    c1_tidy_corr <- tidy_correlation(list_in = c1_correlation) %>%
+        mutate(Cohort = 1),
+    c2_tidy_corr <- tidy_correlation(list_in = c2_correlation) %>%
+        mutate(Cohort = 2),
+    c3_tidy_corr <- tidy_correlation(list_in = c3_correlation) %>%
+        mutate(Cohort = 3)
+)
 
-    # Round
+tidy_corr <- map_df(
+    .x = corr,
+    .f = rbind
+) %>%
+    arrange(question)
 
-    dat <- cost_cor_list[[i]] %>%
-        mutate(across(mean_pt:ccc_high,
-            round,
-            digits = 2
-        ))
-
-    # Merge Patient
-
-    dat <- dat %>%
-        mutate(patient_mean_sd = paste0(
-            mean_pt,
-            " (",
-            sd_pt,
-            ")"
-        )) %>%
-        select(-(mean_pt:sd_pt))
-
-    # Merge Caregiver
-
-    dat <- dat %>%
-        mutate(caregiver_mean_sd = paste0(
-            mean_cg,
-            " (",
-            sd_cg,
-            ")"
-        )) %>%
-        select(-(mean_cg:sd_cg))
-
-    # Merge Pearson
-
-    dat <- dat %>%
-        mutate(pearson_95_ci = paste0(
-            pearson_cor,
-            " (",
-            pearson_low,
-            "-",
-            pearson_high, ")"
-        )) %>%
-        select(-(pearson_cor:pearson_high))
-
-    # Merge CCC
-    dat <- dat %>%
-        mutate(ccc_95_ci = paste0(
-            ccc_cor,
-            " (",
-            ccc_low,
-            "-",
-            ccc_high, ")"
-        )) %>%
-        select(-(ccc_cor:ccc_high))
-
-    # Store in list
-    tidy_cost_cor_list[[i]] <- dat
-}
-## 2. Chronbach
+## 2. Chronbach-----------------------------------------------------------------
 chron <- list(
     c1_tidy_chronbach <- tidy_chronbach(c1_chronbach) %>%
         mutate(Cohort = 1),
