@@ -7,7 +7,7 @@
 #' @param tp a numeric value representing the timepoint of interest
 
 
-tp_sum <- function(dat, obs, tp) {
+sum_survey_by_tp <- function(dat, obs, tp) {
     dat_out <- dat %>%
         dplyr::filter(observation == obs) %>%
         dplyr::filter(redcap_event_name == tp) %>%
