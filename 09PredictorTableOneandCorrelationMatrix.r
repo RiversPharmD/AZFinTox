@@ -64,7 +64,11 @@ for (i in 1:3) {
 }
 
 table_one_stack <- stack_table_one(
-    list_table_one = list_table_one,
+    list_table_one = list_table_one
+)
+
+table_one_stack <- footnote_table_one(
+    gt_in = table_one_stack,
     vec_footnote_position = c(20, 47)
 )
 #### Prep for output
