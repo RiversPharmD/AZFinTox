@@ -150,7 +150,10 @@ label_factors <- function(dat) {
     )
 
     #### Age
-    dat$age <- dat$age
+    dat$age <- as.numeric(dat$age)
+
+    #### comorbid_sum
+    dat$comorbid_sum <- as.numeric(dat$comorbid_sum)
 
     return(dat)
 }
