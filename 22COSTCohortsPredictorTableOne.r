@@ -62,11 +62,11 @@ for (i in 1:3) {
     dat <- dat %>%
         filter(is.na(source) == FALSE) %>%
         rbind(dat_na_pat) %>%
-        rbind(dat_na_care)%>%
+        rbind(dat_na_care) %>%
         mutate(location = case_when(
             is.na(location) == FALSE ~ location,
             partid < 2000 ~ 0,
-            partid >=2000 ~ 1
+            partid >= 2000 ~ 1
         ))
     cohort_list[[i]] <- dat
 }
@@ -120,7 +120,7 @@ table_one_merge <- map(
 )
 table_one_stack <- stack_table_one(list_table_one = table_one_merge)
 
-table_one_stack <- footnote_table_one(table_one_stack, c(25,58))
+table_one_stack <- footnote_table_one(table_one_stack, c(25, 58))
 # Data Out______________________________________________________________________
 
 ## Table One--------------------------------------------------------------------
