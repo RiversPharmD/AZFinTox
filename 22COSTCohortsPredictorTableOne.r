@@ -26,143 +26,109 @@ library(flextable)
 library(gtsummary)
 library(tidyverse)
 source("00Functions.r")
+source("Functions/table_one.r")
 
 # Functions_____________________________________________________________________
 
 # Data In_______________________________________________________________________
-demo_long <- read_csv("IntData/dat_long.csv")
-demo_wide <- read_csv("IntData/dat_wide.csv")
+cohort_list <- list("One" = NA, "Two" = NA, "Three" = NA)
+for (x in c("One", "Two", "Three")) {
+    path <- "IntData/Cohort"
 
+    cohort_list[[x]] <- read_csv(file = paste0(path, x, ".csv")) %>%
+        distinct(partid)
+}
+
+pred_data <- read_csv(file = "IntData/dat_wide.csv")
 # Analysis______________________________________________________________________
+## Join datasets----------------------------------------------------------------
+cohort_list <- map(
+    .x = cohort_list,
+    ~ full_join(
+        x = .x,
+        y = pred_data
+    )
+)
+
+### Add appropriate missingness
+for (i in 1:3) {
+    dat <- cohort_list[[i]]
+    dat_na <- dat %>%
+        filter(is.na(source) == TRUE)
+    dat_na_pat <- dat_na %>%
+        mutate(source = 0)
+    dat_na_care <- dat_na %>%
+        mutate(source = 1)
+    dat <- dat %>%
+        filter(is.na(source) == FALSE) %>%
+        rbind(dat_na_pat) %>%
+        rbind(dat_na_care)%>%
+        mutate(location = case_when(
+            is.na(location) == FALSE ~ location,
+            partid < 2000 ~ 0,
+            partid >=2000 ~ 1
+        ))
+    cohort_list[[i]] <- dat
+}
 
 ## Create Table One-------------------------------------------------------------
 
 ### Factor Data
-demo_wide <- demo_wide %>%
-    label_factors()
+cohort_list <- map(.x = cohort_list, .f = label_factors)
+
 
 ### Split into source
-pat_wide <- demo_wide %>%
-    filter(source == "Patient") %>%
-    select(
-        partid, location,
-        age, gender, ethnicity, race, education, comorbid_sum,
-        stage, dx,
-        source
-    )
-
-care_wide <- demo_wide %>%
-    filter(source == "Caregiver") %>%
-    select(
-        partid, location,
-        age, gender, ethnicity, race, education, comorbid_sum,
-        source
-    )
-
-dyad_wide <- demo_wide %>%
-    filter(source == "Patient") %>%
-    select(
-        partid, location,
-        income, children, marital
-    )
+cohort_list <- cohort_list %>%
+    map(.f = split_by_source)
 
 ### Write Tables
 
 #### Set Vars
-care_vars <- c(
-    "age", "gender", "ethnicity", "race", "education",
-    "comorbid_sum", "location"
-)
-pat_vars <- c(care_vars, "stage", "dx")
-dyad_vars <- c("income", "children", "marital", "location")
+var_labels <- label_vars()
+output_labels <- label_output()
 
 
 #### Populate Tables
-# This returns NaN for the P-value, because it expects levels for gender to
-# include transgender. Can either hand-calculate, or include gender as a
-# factorVar parameter. I've left it to be hand-calculated here because I think
-# it's easier to update a single number than add the transgender row.
-
-care_table_one <- care_wide %>%
-    select(care_vars) %>%
-    tbl_summary(
-        by = location,
-        label = list(
-            age ~ "Age",
-            gender ~ "Gender",
-            ethnicity ~ "Ethnicity",
-            race ~ "Race",
-            education ~ "Education",
-            comorbid_sum ~ "Number of Comorbidities"
+list_list_table_one <- list(NA, NA, NA)
+list_table_one <- list(NA, NA, NA)
+for (i in 1:3) {
+    list_in <- cohort_list[[i]]
+    for (z in 1:3) {
+        list_table_one[[z]] <- populate_table_one(
+            dat = list_in[[z]],
+            var = var_labels[[z]],
+            label = output_labels[[z]]
         )
-    ) %>%
-    add_p() %>%
-    add_overall()
+    }
+    list_list_table_one[[i]] <- list_table_one
+}
 
-pat_table_one <- pat_wide %>%
-    select(pat_vars) %>%
-    tbl_summary(
-        by = location,
-        label = list(
-            age ~ "Age",
-            gender ~ "Gender",
-            ethnicity ~ "Ethnicity",
-            race ~ "Race",
-            education ~ "Education",
-            comorbid_sum ~ "Number of Comorbidities",
-            stage ~ "Stage at Diagnosis",
-            dx ~ "Disease Site"
-        )
-    ) %>%
-    add_p() %>%
-    add_overall()
-
-dyad_table_one <- dyad_wide %>%
-    select(dyad_vars) %>%
-    tbl_summary(
-        by = location,
-        label = list(
-            income ~ "Household Income",
-            children ~ "Presence of Children Under 18 Years Old",
-            marital ~ "Marital Status"
-        )
-    ) %>%
-    add_p() %>%
-    add_overall()
-
-#### Prep for output
-table_one <- tbl_stack(
-    tbls = list(
-        pat_table_one,
-        care_table_one,
-        dyad_table_one
-    ),
-    group_header = c("Patient", "Caregiver", "Dyad")
-) %>%
-    as_flex_table() %>%
-    flextable::footnote(
-        i = c(20, 59), ## manually added numbers
-        j = 2,
-        value = flextable::as_paragraph("Comorbidities include: Heart Disease,
-    High Blood Pressure, Lung Disease, Diabetes, Ulcer or Stomach Disease,
-    Kidney Disease, Liver Disease, Anemia or Other Blood Disease, Depression,
-    Osteoarthritis/Degenerative Arthritis, Back Pain,
-    and Rheumatoid Arthritis"),
-        ref_symbols = "3",
-        part = "body"
+list_table_one_by_group <- list(NA, NA, NA)
+for (i in 1:3) {
+    list_table_one_by_group[[i]] <- list(
+        list_list_table_one[[1]][[i]],
+        list_list_table_one[[2]][[i]],
+        list_list_table_one[[3]][[i]]
     )
+}
+table_one_merge <- map(
+    list_table_one_by_group,
+    ~ tbl_merge(
+        tbls = .x,
+        tab_spanner = c("Cohort One", "Cohort Two", "Cohort 3")
+    )
+)
+table_one_stack <- stack_table_one(list_table_one = table_one_merge)
 
-
-
-table_one
+table_one_stack <- footnote_table_one(table_one_stack, c(25,58))
 # Data Out______________________________________________________________________
 
 ## Table One--------------------------------------------------------------------
 file_path <- "OutData/"
 
-flextable::save_as_docx(table_one,
+flextable::save_as_docx(table_one_stack,
     path = paste0(
         file_path,
-        "table_one.docx"
+        "table_one_across_cohorts.docx"
     )
 )
