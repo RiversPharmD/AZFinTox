@@ -75,7 +75,8 @@ populate_table_one <- function(dat,
         select(var) %>%
         tbl_summary(
             by = location,
-            label = label
+            label = label,
+            missing = "ifany"
         ) %>%
         add_p() %>%
         add_overall()
