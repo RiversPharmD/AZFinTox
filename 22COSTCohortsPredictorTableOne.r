@@ -44,7 +44,7 @@ pred_data <- read_csv(file = "IntData/dat_wide.csv")
 ## Join datasets----------------------------------------------------------------
 cohort_list <- map(
     .x = cohort_list,
-    ~ full_join(
+    ~ left_join(
         x = .x,
         y = pred_data
     )
