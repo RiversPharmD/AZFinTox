@@ -1,5 +1,5 @@
 split_by_source <- function(dat) {
-    pat_wide <- demo_wide %>%
+    pat_wide <- dat %>%
         filter(source == "Patient") %>%
         select(
             partid, location,
@@ -8,7 +8,7 @@ split_by_source <- function(dat) {
             source
         )
 
-    care_wide <- demo_wide %>%
+    care_wide <- dat %>%
         filter(source == "Caregiver") %>%
         select(
             partid, location,
@@ -16,7 +16,7 @@ split_by_source <- function(dat) {
             source
         )
 
-    dyad_wide <- demo_wide %>%
+    dyad_wide <- dat %>%
         filter(source == "Patient") %>%
         select(
             partid, location,
