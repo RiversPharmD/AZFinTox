@@ -23,8 +23,8 @@ split_by_source <- function(dat) {
             income, children, marital
         )
     list_out <- list(
-        pat_wide,
         care_wide,
+        pat_wide,
         dyad_wide
     )
 }
@@ -42,30 +42,30 @@ label_vars <- function() {
 
 
 label_output <- function() {
-    care_labels <- list(
-        age ~ "Age",
-        gender ~ "Gender",
-        ethnicity ~ "Ethnicity",
-        race ~ "Race",
-        education ~ "Education",
-        comorbid_sum ~ "Number of Comorbidities"
-    )
-
-    pat_labels <- list(
-        age ~ "Age",
-        gender ~ "Gender",
-        ethnicity ~ "Ethnicity",
-        race ~ "Race",
-        education ~ "Education",
-        comorbid_sum ~ "Number of Comorbidities",
-        stage ~ "Stage at Diagnosis",
-        dx ~ "Disease Site"
-    )
-
-    dyad_labels <- list(
-        income ~ "Household Income",
-        children ~ "Presence of Children Under 18 Years Old",
-        marital ~ "Marital Status"
+    out_list <- list(
+        care_labels <- list(
+            age ~ "Age",
+            gender ~ "Gender",
+            ethnicity ~ "Ethnicity",
+            race ~ "Race",
+            education ~ "Education",
+            comorbid_sum ~ "Number of Comorbidities"
+        ),
+        pat_labels <- list(
+            age ~ "Age",
+            gender ~ "Gender",
+            ethnicity ~ "Ethnicity",
+            race ~ "Race",
+            education ~ "Education",
+            comorbid_sum ~ "Number of Comorbidities",
+            stage ~ "Stage at Diagnosis",
+            dx ~ "Disease Site"
+        ),
+        dyad_labels <- list(
+            income ~ "Household Income",
+            children ~ "Presence of Children Under 18 Years Old",
+            marital ~ "Marital Status"
+        )
     )
 }
 populate_table_one <- function(dat,
