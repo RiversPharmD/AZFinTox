@@ -82,20 +82,24 @@ populate_table_one <- function(dat,
         add_overall()
 }
 
-stack_table_one <- function(list_table_one, vec_footnote_position) {
+stack_table_one <- function(list_table_one) {
     table_out <- tbl_stack(
         tbls = list_table_one,
         group_header = c("Patient", "Caregiver", "Dyad")
-    ) %>%
+    )
+}
+
+footnote_table_one <- function(gt_in, vec_footnote_position) {
+    gt_out <- gt_in %>%
         as_flex_table() %>%
         flextable::footnote(
             i = vec_footnote_position, ## manually added numbers
             j = 2,
             value = flextable::as_paragraph("Comorbidities include: Heart Disease,
-        High Blood Pressure, Lung Disease, Diabetes, Ulcer or Stomach Disease,
-        Kidney Disease, Liver Disease, Anemia or Other Blood Disease, Depression,
-        Osteoarthritis/Degenerative Arthritis, Back Pain,
-        and Rheumatoid Arthritis"),
+    High Blood Pressure, Lung Disease, Diabetes, Ulcer or Stomach Disease,
+    Kidney Disease, Liver Disease, Anemia or Other Blood Disease, Depression,
+    Osteoarthritis/Degenerative Arthritis, Back Pain,
+    and Rheumatoid Arthritis"),
             ref_symbols = "3",
             part = "body"
         )
