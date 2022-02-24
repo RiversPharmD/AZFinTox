@@ -85,7 +85,7 @@ populate_table_one <- function(dat,
 stack_table_one <- function(list_table_one) {
     table_out <- tbl_stack(
         tbls = list_table_one,
-        group_header = c("Patient", "Caregiver", "Dyad")
+        group_header = c("Caregiver", "Patient", "Dyad")
     )
 }
 
