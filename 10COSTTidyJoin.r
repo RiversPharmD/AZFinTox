@@ -16,10 +16,7 @@
 ## IntData/cost.csv
 ## IntData/cost_full.csv
 
-## Note: The logical and categorical variables are created using an adjusted sum
-## that sets all missing values to 4, as this represents the highest possible
-## score a respondent could provide. This means that some patients will show up
-## in the lgl/cat datasets, but not in the continuous dataset.
+## Note: scored via: https://www.facit.org/measures-scoring-downloads/cost-scoring-downloads
 
 ###############################################################################
 
@@ -84,7 +81,8 @@ for (i in seq_along(df_list)) {
     dat <- dat %>%
         rowwise() %>% ## swaps it so I can mutate this way
         mutate(
-            sum = sum(c_across(facit_cost01:facit_cost11), na.rm = TRUE)
+            sum_raw = sum(c_across(facit_cost01:facit_cost11), na.rm = TRUE),
+            sum = as.double((sum_raw * 11) / (11 - count_na))
         ) %>%
         ungroup()
 
