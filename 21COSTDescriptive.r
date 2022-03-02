@@ -414,7 +414,7 @@ path <- "IntData/"
 
 ### All Dyads with Survey Data
 write_csv(
-    x = dat_paired,
+    x = dat_paired %>% filter(redcap_event_name ==1),
     file = paste0(
         path,
         "CohortOne.csv"
@@ -423,7 +423,7 @@ write_csv(
 
 ### All Dyads with Survey Data and Baseline Characteristics
 write_csv(
-    x = dat_paired_pred,
+    x = dat_paired_pred%>% filter(redcap_event_name == 1),
     file = paste0(
         path,
         "CohortTwo.csv"
