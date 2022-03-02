@@ -3,8 +3,7 @@
 ## Author: Zach Rivers, @riverspharmd, zrivers@fredhutch.org
 ## Contributors:
 
-## Purpose: Produce a table one, and a correlation matrix for the predictor
-## variables.
+## Purpose: Produce a table one
 
 ## Depends on:
 ## 08PredictorMissingness.r
@@ -73,22 +72,32 @@ for (i in 1:3) {
 
 ## Create Table One-------------------------------------------------------------
 
-### Factor Data
+### Prep Data
+#### Create cohort dataset
+
+cohort_pop <- cohort_list[[2]] %>%
+    mutate(cohort = if_else(partid %in% cohort_list[[3]]$partid,
+        3, 2
+    ))
+#### Factor Data
 cohort_list <- map(.x = cohort_list, .f = label_factors)
 
+cohort_pop <- cohort_pop %>%
+    label_factors()
 
-### Split into source
+### By Location
+#### Split into source
 cohort_list <- cohort_list %>%
     map(.f = split_by_source)
 
-### Write Tables
+#### Write Tables
 
-#### Set Vars
+##### Set Vars
 var_labels <- label_vars()
 output_labels <- label_output()
 
 
-#### Populate Tables
+##### Populate Tables
 list_list_table_one <- list(NA, NA, NA)
 list_table_one <- list(NA, NA, NA)
 for (i in 1:3) {
@@ -115,12 +124,44 @@ table_one_merge <- map(
     list_table_one_by_group,
     ~ tbl_merge(
         tbls = .x,
-        tab_spanner = c("Cohort One", "Cohort Two", "Cohort 3")
+        tab_spanner = c("Cohort One", "Cohort Two", "Cohort Three")
     )
 )
 table_one_stack <- stack_table_one(list_table_one = table_one_merge)
 
 table_one_stack <- footnote_table_one(table_one_stack, c(25, 58))
+
+### By Cohort
+#### Split into source
+cohort_pop <- cohort_pop %>%
+    split_by_source()
+
+#### Write Tables
+
+##### Set Vars
+var_labels <- label_vars(group_var = "cohort")
+output_labels <- label_output()
+
+
+##### Populate Tables
+
+list_table_one <- list(NA, NA, NA)
+for (z in 1:3) {
+    list_table_one[[z]] <- populate_table_one(
+        dat = cohort_pop[[z]],
+        var = var_labels[[z]],
+        label = output_labels[[z]],
+        by = "cohort"
+    )
+}
+
+
+
+table_one_stack_cohort <- stack_table_one(list_table_one = list_table_one)
+
+table_one_stack_cohort <- footnote_table_one(table_one_stack_cohort, c(20, 50))
+
+
 # Data Out______________________________________________________________________
 
 ## Table One--------------------------------------------------------------------
@@ -132,3 +173,7 @@ flextable::save_as_docx(table_one_stack,
         "table_one_across_cohorts.docx"
     )
 )
+flextable::save_as_docx(table_one_stack_cohort,
+                        path = paste0(
+                        file_path,
+                        "table_one_cohort_two_and_three.docx"))
