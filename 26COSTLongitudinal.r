@@ -45,7 +45,7 @@ timepoint_headers <- c(
 )
 ## Format data------------------------------------------------------------------
 cohort_pc <- cohort %>%
-    filter(src != "dyad") %>%
+    filter(src != "Dyad") %>%
     mutate(
         binary = factor(binary,
             levels = 0:1,
@@ -58,7 +58,7 @@ cohort_pc <- cohort %>%
     )
 
 cohort_dyad <- cohort %>%
-    filter(src == "dyad") %>%
+    filter(src == "Dyad") %>%
     mutate(
         binary = factor(binary,
             levels = c(0:3),
@@ -84,7 +84,7 @@ cont_pat_list <- map(
     .x = timepoint_list,
     ~ sum_longitudinal(
         dat_in = cohort_pc,
-        src = "patient",
+        src = "Patient",
         tp_vec = .x,
         var = "continuous"
     )
@@ -98,7 +98,7 @@ dich_pat_list <- map(
     .x = timepoint_list,
     ~ sum_longitudinal(
         dat_in = cohort_pc,
-        src = "patient",
+        src = "Patient",
         tp_vec = .x,
         var = "binary"
     )
@@ -112,7 +112,7 @@ cat_pat_list <- map(
     .x = timepoint_list,
     ~ sum_longitudinal(
         dat_in = cohort_pc,
-        src = "patient",
+        src = "Patient",
         tp_vec = .x,
         var = "categorical"
     )
@@ -126,7 +126,7 @@ cont_care_list <- map(
     .x = timepoint_list,
     ~ sum_longitudinal(
         dat_in = cohort_pc,
-        src = "caregiver",
+        src = "Caregiver",
         tp_vec = .x,
         var = "continuous"
     )
@@ -140,7 +140,7 @@ dich_care_list <- map(
     .x = timepoint_list,
     ~ sum_longitudinal(
         dat_in = cohort_pc,
-        src = "caregiver",
+        src = "Caregiver",
         tp_vec = .x,
         var = "binary"
     )
@@ -154,7 +154,7 @@ cat_care_list <- map(
     .x = timepoint_list,
     ~ sum_longitudinal(
         dat_in = cohort_pc,
-        src = "caregiver",
+        src = "Caregiver",
         tp_vec = .x,
         var = "categorical"
     )
@@ -168,7 +168,7 @@ cont_dyad_list <- map(
     .x = timepoint_list,
     ~ sum_longitudinal(
         dat_in = cohort_dyad,
-        src = "dyad",
+        src = "Dyad",
         tp_vec = .x,
         var = "continuous"
     )
@@ -182,7 +182,7 @@ dich_dyad_list <- map(
     .x = timepoint_list,
     ~ sum_longitudinal(
         dat_in = cohort_dyad,
-        src = "dyad",
+        src = "Dyad",
         tp_vec = .x,
         var = "binary"
     )
@@ -196,7 +196,7 @@ cat_dyad_list <- map(
     .x = timepoint_list,
     ~ sum_longitudinal(
         dat_in = cohort_dyad,
-        src = "dyad",
+        src = "Dyad",
         tp_vec = .x,
         var = "categorical"
     )

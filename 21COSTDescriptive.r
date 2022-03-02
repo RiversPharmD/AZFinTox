@@ -24,7 +24,7 @@ source("00Functions.r")
 
 # Functions_____________________________________________________________________
 sum_observation <- function(dat, source) {
-    if (source != "dyad") {
+    if (source != "Dyad") {
         dat_out <- dat %>%
             select(-c(partid, src)) %>%
             mutate(
@@ -68,7 +68,7 @@ sum_observation <- function(dat, source) {
 
 sum_timepoint <- function(dat) {
     dat_sum <- dat %>%
-        filter(src != "dyad") %>%
+        filter(src != "Dyad") %>%
         select(-c(redcap_event_name)) %>%
         mutate(
             binary = factor(binary,
@@ -131,9 +131,9 @@ pred_dat <- read_csv(
 dat <- dat %>%
     mutate(
         src = case_when( ## Rename Source
-            str_detect(observation, "_p") == TRUE ~ "patient",
-            str_detect(observation, "_c$") == TRUE ~ "caregiver",
-            str_detect(observation, "con_") == TRUE ~ "dyad",
+            str_detect(observation, "_p") == TRUE ~ "Patient",
+            str_detect(observation, "_c$") == TRUE ~ "Caregiver",
+            str_detect(observation, "con_") == TRUE ~ "Dyad",
             TRUE ~ "ERROR"
         ),
         type = case_when( ## Rename Outcome Type
@@ -162,13 +162,13 @@ tp_list <- list(
 
 dat_paired <- tibble()
 
-#### Identify dyads with data available at each timepoint
+#### Identify Dyads with data available at each timepoint
 for (i in 1:4) {
     tp_list[[i]] <- dat %>%
         import_available_survey_data(
             timepoint = i,
             survey = "COST",
-            obs = "dyad"
+            obs = "Dyad"
         ) %>%
         mutate( ## add these for summarising
             redcap_event_name = i,
@@ -201,8 +201,8 @@ for (i in 1:4) {
     data_all_pred <- rbind(data_all_pred, pred_tp_list[[i]])
 }
 
-### All dyads with observations across all timepoints
-#### Select only dyads with data across all timepoints
+### All Dyads with observations across all timepoints
+#### Select only Dyads with data across all timepoints
 dat_all_time_points <- dat_paired_pred %>%
     filter(partid %in% tp_list[[4]]$partid) %>%
     filter(partid %in% tp_list[[3]]$partid) %>%
@@ -230,33 +230,33 @@ for (i in 1:4) {
 ### Split by Source
 #### All Dyads With Survey Data
 dat_pat <- dat_paired %>%
-    filter(src == "patient")
+    filter(src == "Patient")
 
 dat_care <- dat_paired %>%
-    filter(src == "caregiver")
+    filter(src == "Caregiver")
 
 dat_dyad <- dat_paired %>%
-    filter(src == "dyad")
+    filter(src == "Dyad")
 
 #### All Dyads With Survey Data and baseline
 dat_pred_pat <- dat_paired_pred %>%
-    filter(src == "patient")
+    filter(src == "Patient")
 
 dat_pred_care <- dat_paired_pred %>%
-    filter(src == "caregiver")
+    filter(src == "Caregiver")
 
 dat_pred_dyad <- dat_paired_pred %>%
-    filter(src == "dyad")
+    filter(src == "Dyad")
 
 #### All Dyads with Survey Data Across all 4 timepoints
 dat_all_pat <- dat_all_paired %>%
-    filter(src == "patient")
+    filter(src == "Patient")
 
 dat_all_care <- dat_all_paired %>%
-    filter(src == "caregiver")
+    filter(src == "Caregiver")
 
 dat_all_dyad <- dat_all_paired %>%
-    filter(src == "dyad")
+    filter(src == "Dyad")
 
 
 # Analysis______________________________________________________________________
@@ -325,9 +325,9 @@ dat_list <- list(
 )
 
 source_list <- list(
-    "patient",
-    "caregiver",
-    "dyad"
+    "Patient",
+    "Caregiver",
+    "Dyad"
 )
 
 sum_list <- map2(
