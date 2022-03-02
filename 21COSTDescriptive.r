@@ -391,6 +391,17 @@ tp_all_sum_list <- map(
     ~ sum_timepoint(dat = .x)
 )
 
+### By cohort
+cohort_sum_list <- list(
+    tp_sum_list[[1]],
+    tp_pred_sum_list[[1]],
+    tp_all_sum_list[[1]]
+)
+dyad_sum_list <- list(
+    sum_list[[3]],
+    sum_pred_list[[3]],
+    sum_all_list[[3]]
+)
 ## Joined Tables --------------------------------------------------------
 sum_src <- stack_list(list_in = sum_list)
 sum_pred_src <- stack_list(list_in = sum_pred_list)
@@ -400,6 +411,23 @@ sum_tp <- merge_list(list_in = tp_sum_list)
 sum_pred_tp <- merge_list(list_in = tp_pred_sum_list)
 sum_all_tp <- merge_list(list_in = tp_all_sum_list)
 
+cohort_sum <- tbl_merge(
+    tbls = cohort_sum_list,
+    tab_spanner = c(
+        "Cohort 1",
+        "Cohort 2",
+        "Cohort 3"
+    )
+)
+
+cohort_dyad_sum <- tbl_merge(
+    tbls = dyad_sum_list,
+    tab_spanner = c(
+        "Cohort 1",
+        "Cohort 2",
+        "Cohort 3"
+    )
+)
 sum_src
 sum_pred_src
 sum_all_src
@@ -408,13 +436,14 @@ sum_tp
 sum_pred_tp
 sum_all_tp
 
+cohort_dyad_sum
 # Data Out______________________________________________________________________
 ## Cohorts
 path <- "IntData/"
 
 ### All Dyads with Survey Data
 write_csv(
-    x = dat_paired %>% filter(redcap_event_name ==1),
+    x = dat_paired %>% filter(redcap_event_name == 1),
     file = paste0(
         path,
         "CohortOne.csv"
@@ -423,7 +452,7 @@ write_csv(
 
 ### All Dyads with Survey Data and Baseline Characteristics
 write_csv(
-    x = dat_paired_pred%>% filter(redcap_event_name == 1),
+    x = dat_paired_pred %>% filter(redcap_event_name == 1),
     file = paste0(
         path,
         "CohortTwo.csv"
@@ -437,3 +466,17 @@ write_csv(
         "CohortThree.csv"
     )
 )
+
+## Pretty Tables
+
+path <- "OutData/"
+flextable::save_as_docx(as_flex_table(cohort_sum),path = paste0(
+    path,
+    "COST_desc_cohort.docx"
+))
+
+flextable::save_as_docx(as_flex_table(sum_all_tp),
+                        path = paste0(path, "COST_desc_timepoint.docx"))
+
+flextable::save_as_docx(as_flex_table(cohort_dyad_sum),
+                        path = paste0(path, "COST_desc_cohortdyad.docx"))
