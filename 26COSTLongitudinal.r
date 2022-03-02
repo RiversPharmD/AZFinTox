@@ -211,10 +211,15 @@ care_longitudinal <- tbl_stack(tbls = list(cont_care, dich_care, cat_care))
 dyad_longitudinal <- tbl_stack(tbls = list(cont_dyad, dich_dyad, cat_dyad))
 
 longitudinal <- tbl_stack(
-    tbls = list(pat_longitudinal, care_longitudinal, dyad_longitudinal),
-    group_header = c("Patient", "Caregiver", "Dyad")
+    tbls = list(pat_longitudinal, care_longitudinal),
+    group_header = c("Patient", "Caregiver")
 )
 
 longitudinal
 
 # Data out______________________________________________________________________
+path <- "OutData/"
+flextable::save_as_docx(
+    as_flex_table(longitudinal),
+    path = paste0(path,"COST_desc_cohort_three_longitudinal.docx")
+)
