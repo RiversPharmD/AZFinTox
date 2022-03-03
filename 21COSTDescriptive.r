@@ -20,7 +20,7 @@
 library(gtsummary)
 library(flextable)
 library(tidyverse)
-#source("00Functions.r")
+source("Functions/importing.r")
 source("Functions/cost_descriptive.r")
 # Functions_____________________________________________________________________
 
@@ -172,7 +172,15 @@ dat_all_care <- dat_all_paired %>%
 dat_all_dyad <- dat_all_paired %>%
     filter(src == "Dyad")
 
-
+#### Dyad output
+dyad_list <- list(
+    dat_bl_dyad <- dat_dyad %>%
+        filter(redcap_event_name == 1),
+    dat_bl_pred_dyad <- dat_pred_dyad %>%
+        filter(redcap_event_name == 1),
+    dat_all_tp_dyad <- dat_all_dyad %>%
+        filter(redcap_event_name == 1)
+)
 # Analysis______________________________________________________________________
 ## Formatting-------------------------------------------------------------------
 ### Patient/Caregiver
@@ -202,7 +210,7 @@ dyad_labels <- list(
     n ~ "Number of Participants",
     continuous ~ "Difference in Cost Score",
     binary ~ "Difference in Financial Toxicity",
-    categorical ~ "Dfference in Severity of Financial Toxicity"
+    categorical ~ "Difference in Severity of Financial Toxicity"
 )
 
 #### Binary Level and Labels
@@ -311,10 +319,12 @@ cohort_sum_list <- list(
     tp_pred_sum_list[[1]],
     tp_all_sum_list[[1]]
 )
-dyad_sum_list <- list(
-    sum_list[[3]],
-    sum_pred_list[[3]],
-    sum_all_list[[3]]
+dyad_sum_list <- map(
+    .x = dyad_list,
+    ~ sum_timepoint(
+        dat = .x,
+        switch = "Dyad"
+    )
 )
 ## Joined Tables --------------------------------------------------------
 sum_src <- stack_list(list_in = sum_list)
@@ -384,13 +394,15 @@ write_csv(
 ## Pretty Tables
 
 path <- "OutData/"
-flextable::save_as_docx(as_flex_table(cohort_sum),path = paste0(
+flextable::save_as_docx(as_flex_table(cohort_sum), path = paste0(
     path,
     "COST_desc_cohort.docx"
 ))
 
 flextable::save_as_docx(as_flex_table(sum_all_tp),
-                        path = paste0(path, "COST_desc_timepoint.docx"))
+    path = paste0(path, "COST_desc_timepoint.docx")
+)
 
 flextable::save_as_docx(as_flex_table(cohort_dyad_sum),
-                        path = paste0(path, "COST_desc_cohortdyad.docx"))
+    path = paste0(path, "COST_desc_cohortdyad.docx")
+)
