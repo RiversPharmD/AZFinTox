@@ -24,7 +24,7 @@
 library(flextable)
 library(gtsummary)
 library(tidyverse)
-source("00Functions.r")
+source("Functions/tidying.r")
 source("Functions/table_one.r")
 
 # Functions_____________________________________________________________________
@@ -174,6 +174,8 @@ flextable::save_as_docx(table_one_stack,
     )
 )
 flextable::save_as_docx(table_one_stack_cohort,
-                        path = paste0(
-                        file_path,
-                        "table_one_cohort_two_and_three.docx"))
+    path = paste0(
+        file_path,
+        "table_one_cohort_two_and_three.docx"
+    )
+)

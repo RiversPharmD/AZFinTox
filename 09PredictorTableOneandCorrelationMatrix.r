@@ -25,7 +25,7 @@
 library(flextable)
 library(gtsummary)
 library(tidyverse)
-source("00Functions.r")
+source("Functions/tidying.r")
 source("Functions/table_one.r")
 # Functions_____________________________________________________________________
 
