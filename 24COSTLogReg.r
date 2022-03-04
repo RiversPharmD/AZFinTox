@@ -130,9 +130,11 @@ care_input <- list(
     c7 = c(care_var, pat_var, dyad_var),
     c8 = c(care_var, clin_var, pat_var, dyad_var, "income * location")
 )
-
-dyad_input <- c(pat_input[1:7], care_input[c(1, 2, 4, 6, 8)])
-mod_input <- list(pat_input, care_input, dyad_input)
+# This just ensures no duplicates in the dyad analysis
+dyad_input <- c(
+    pat_input[1:7],
+    care_input[c(1, 2, 4, 6, 8)]
+)
 
 ### Build Table Spanners
 p_spanner <- c(
@@ -159,8 +161,11 @@ c_spanner <- c(
     "All Predictors"
 )
 
-dyad_spanner <- c(p_spanner[1:8], c_spanner[c(2, 3, 4, 7, 9)])
-span_list <- list(p_spanner, c_spanner, dyad_spanner)
+# Same as before, no duplicates in the dyad analysis
+dyad_spanner <- c(
+    p_spanner[1:8],
+    c_spanner[c(2, 3, 4, 7, 9)]
+)
 
 ### Build empty lists
 bv_lr_list <- list()
@@ -168,8 +173,10 @@ mv_lr_list <- list()
 joined_model_list <- list()
 joined_model_list_tidy <- list()
 
-### Build Outcome Lists
+### Build loop input Lists
 outcome_list <- list("p_fintox", "c_fintox", "con")
+span_list <- list(p_spanner, c_spanner, dyad_spanner)
+mod_input <- list(pat_input, care_input, dyad_input)
 
 ### loop over datsets
 for (i in 1:3) {
