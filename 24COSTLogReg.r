@@ -184,6 +184,14 @@ for (i in 1:3) {
         i == 1 ~ c(outcome_list[[2]], outcome_list[[3]]),
         i == 2 ~ c(outcome_list[[1]], outcome_list[[3]]),
         i == 3 ~ c(outcome_list[[1]], outcome_list[[2]])
+    # Fit multivariate logreg
+    mv_log_reg_fits <- map(
+        .x = mv_input,
+        ~ mv_log_reg(
+            input = .x,
+            resp = resp,
+            dat = pred_outcomes
+        )
     )
     bv_lr_list[[i]] <- pred_outcomes %>%
         select(-c(partid)) %>%
@@ -201,14 +209,6 @@ for (i in 1:3) {
         modify_footnote(c(estimate, ci) ~
         "ORs <0.001 or larger than 10 shown as '<0.001' and '>10.00'") %>%
         bold_p()
-
-    log_reg_list <- map(.x = mod_input[[i]], ~ mv_log_reg(
-        input = .x,
-        resp = outcome_list[[i]],
-        dat = pred_outcomes
-    ))
-
-    ### Tidy model fits
     mv_lr_list[[i]] <- map(
         .x = log_reg_list,
         ~ tidy_mv_log_reg(mod_fit = .x)
