@@ -17,7 +17,7 @@
 ################################################################################
 ## Packages:
 library(tidyverse)
-source("00Functions.r")
+source("Functions/tidying.r")
 
 ## Functions
 collapse_vars <- function(dat) {
@@ -32,6 +32,13 @@ collapse_vars <- function(dat) {
                 income == 0 | income == 1 | income == 2 ~ 0,
                 income == 3 | income == 4 | income == 5 ~ 1,
                 income == 6 ~ 2
+            ),
+            race = case_when(
+                race == 0 ~ 0,
+                race == 1 | race == 2 ~ 1,
+                race == 3 ~ 2,
+                race == 4 ~ 3,
+                race == 5 ~ 4
             )
         )
 }

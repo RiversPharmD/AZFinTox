@@ -53,17 +53,18 @@ label_factors <- function(dat) {
 
     #### Race
 
-    dat$race <- relevel(factor(dat$race,
-        levels = c(0:5),
+    dat$race <- factor(dat$race,
+        levels = c(0:4),
         labels = c(
             "American Indian or Alaskan Native",
-            "Asian",
-            "Native Hawaiian or Pacific Islander",
+            "Asian, Native Hawaiian or Pacific Islander",
             "Black",
             "White",
             "Multiracial"
         )
-    ), ref = "White")
+    )
+
+    dat$race <- relevel(dat$race, ref = "White")
     #### Ethnicity
 
     dat$ethnicity <- factor(dat$ethnicity,
