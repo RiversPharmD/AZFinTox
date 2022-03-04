@@ -3,8 +3,8 @@
 ## Author: Zach Rivers, @riverspharmd, zrivers@fredhutch.org
 ## Contributors:
 
-## Purpose: This file runs the logistic regression model for bivariate logreg,
-## across three different outcomes.
+## Purpose: This file runs the logistic regression model for bivariate and
+## multivariate logreg across three different outcomes.
 
 ## Depends on:
 ## 07PredictorExploration.r
@@ -12,6 +12,7 @@
 ## tidyverse
 ## gtsummary
 ## flextable
+## labelled
 
 ## Input:
 ## IntData/dat_wide.csv
@@ -53,7 +54,7 @@ cost <- read_csv("IntData/cost.csv",
 )
 
 # Data Prep_____________________________________________________________________
-## Clean COST-------------------------------------------------------------------
+## Prep Outcomes----------------------------------------------------------------
 cost_outcomes <- build_outcome(dat = cost)
 
 ## Prep Predictors-------------------------------------------------------------
@@ -62,17 +63,20 @@ pred_wide <- label_factors(dat = pred_wide)
 
 ### Build predictor datset
 pred_wide <- build_predictors(dat = pred_wide)
+
 ### Label predictor dataset
 var_label(pred_wide) <- lr_labels
+
 ## Join with outcomes-----------------------------------------------------------
 pred_outcomes <- join_pred_out(
     pred_dat = pred_wide,
     outcome_dat = cost_outcomes
-)
+) %>%
+    select(-c(partid)) %>%
+    filter(is.na(age_p) == FALSE)
+
 # Run Models____________________________________________________________________
-
-
-## Prep Data Structures----------------------------
+## Prep Data Structures---------------------------------------------------------
 ### Build Model Pieces
 pat_var <- c(
     "age_p",
@@ -82,11 +86,13 @@ pat_var <- c(
     "education_p",
     "comorbid_sum_p"
 )
+
 clin_var <- c(
     "location",
     "stage",
     "dx"
 )
+
 care_var <- c(
     "age_c",
     "gender_c",
@@ -101,6 +107,7 @@ dyad_var <- c(
     "income",
     "children"
 )
+
 ### Build Model Inputs
 pat_input <- list(
     p1 = c(pat_var),
@@ -139,6 +146,7 @@ p_spanner <- c(
     "Patient, Caregiver, and Dyad",
     "All Predictors"
 )
+
 c_spanner <- c(
     "Bivariate",
     "Caregiver",
