@@ -114,7 +114,7 @@ care_input <- list(
 dyad_input <- c(pat_input[1:7], care_input[c(1, 2, 4, 6, 8)])
 mod_input <- list(pat_input, care_input, dyad_input)
 ### Build Model Outcomes
-mod_outcomes <- list("p_fintox", "c_fintox", "con")
+outcome_list <- list("p_fintox", "c_fintox", "con")
 
 ### Build Table Spanners
 p_spanner <- c(
@@ -150,7 +150,7 @@ joined_model_list <- list(NA, NA, NA)
 for (i in 1:3) {
     log_reg_list <- map(.x = mod_input[[i]], ~ mv_log_reg(
         input = .x,
-        resp = mod_outcomes[[i]],
+        resp = outcome_list[[i]],
         dat = pred_outcomes
     ))
 
