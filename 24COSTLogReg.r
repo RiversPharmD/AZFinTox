@@ -177,6 +177,11 @@ joined_model_list_tidy <- list()
 outcome_list <- list("p_fintox", "c_fintox", "con")
 span_list <- list(p_spanner, c_spanner, dyad_spanner)
 mod_input <- list(pat_input, care_input, dyad_input)
+title_list <- list(
+    "Patient Financial Toxicity",
+    "Caregiver Financial Toxicity",
+    "Discordance of Financial Toxicity Between Patients and Caregivers"
+)
 
 ### loop over datsets
 for (i in 1:3) {
@@ -224,7 +229,8 @@ for (i in 1:3) {
 
     joined_model_list_tidy[[i]] <- tbl_merge(joined_model_list[[i]],
         tab_spanner = span_list[[i]]
-    )
+    ) %>%
+        modify_caption(title_list[[i]])
 
     # Wheeeee more loops
     print(paste("Completed Loop", i, "of Three"))
