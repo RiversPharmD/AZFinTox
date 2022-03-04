@@ -139,6 +139,22 @@ dyad_labels <- list(
 )
 lr_labels <- c(pat_labels, care_labels, dyad_labels, dx_labels)
 
+bv_log_reg <- function(dat, resp, exp = TRUE) {
+    dat_out <- tbl_uvregression(
+        data = dat,
+        y = resp,
+        method = glm,
+        include = -outcome_exclude,
+        method.args = list(family = binomial),
+        exponentiate = exp,
+        estimate_fun = purrr::partial(bounded_style_ratio,
+            min = 0.001, max = 10
+        )
+    ) %>%
+        modify_footnote(c(estimate, ci) ~
+        "ORs <0.001 or larger than 10 shown as '<0.001' and '>10.00'") %>%
+        bold_p()
+}
 mv_log_reg <- function(input, resp, dat) {
     mv_fit <- glm(
         reformulate(input, response = resp),
@@ -148,14 +164,16 @@ mv_log_reg <- function(input, resp, dat) {
     return(mv_fit)
 }
 
-tidy_mv_log_reg <- function(mod_fit) {
+tidy_mv_log_reg <- function(mod_fit, exp) {
     out <- tbl_regression(
         x = mod_fit,
-        exponentiate = FALSE,
+        exponentiate = exp,
         estimate_fun = purrr::partial(bounded_style_ratio,
             min = 0.001, max = 10
         )
     ) %>%
+        modify_footnote(c(estimate, ci) ~
+        "ORs <0.001 or larger than 10 shown as '<0.001' and '>10.00'") %>%
         bold_p()
 
     return(out)
