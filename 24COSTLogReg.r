@@ -180,10 +180,7 @@ mod_input <- list(pat_input, care_input, dyad_input)
 
 ### loop over datsets
 for (i in 1:3) {
-    outcome_exclude <- case_when(
-        i == 1 ~ c(outcome_list[[2]], outcome_list[[3]]),
-        i == 2 ~ c(outcome_list[[1]], outcome_list[[3]]),
-        i == 3 ~ c(outcome_list[[1]], outcome_list[[2]])
+    outcome_exclude <- unlist(outcome_list[-i])
     # Tell me that you're still running
     print(paste("Completed bivariate", i, "of Three"))
     # Fit multivariate logreg
