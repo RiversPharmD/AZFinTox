@@ -180,9 +180,21 @@ mod_input <- list(pat_input, care_input, dyad_input)
 
 ### loop over datsets
 for (i in 1:3) {
+    # Pull out parameters for this iteration
+    mv_input <- mod_input[[i]]
+    resp <- outcome_list[[i]]
     outcome_exclude <- unlist(outcome_list[-i])
+    exp <- TRUE
+
+    # Fit and tidy bivariate logreg
+    bv_lr_list[[i]] <- bv_log_reg(
+        dat = pred_outcomes,
+        resp = resp,
+        exp = exp
+    )
     # Tell me that you're still running
     print(paste("Completed bivariate", i, "of Three"))
+
     # Fit multivariate logreg
     mv_log_reg_fits <- map(
         .x = mv_input,
@@ -192,31 +204,19 @@ for (i in 1:3) {
             dat = pred_outcomes
         )
     )
-    bv_lr_list[[i]] <- pred_outcomes %>%
-        select(-c(partid)) %>%
-        filter(is.na(age_p) == FALSE) %>%
-        tbl_uvregression(
-            y = outcome_list[[i]],
-            method = glm,
-            include = -outcome_exclude,
-            method.args = list(family = binomial),
-            exponentiate = FALSE,
-            estimate_fun = purrr::partial(bounded_style_ratio,
-                min = 0.001, max = 10
-            )
-        ) %>%
-        modify_footnote(c(estimate, ci) ~
-        "ORs <0.001 or larger than 10 shown as '<0.001' and '>10.00'") %>%
-        bold_p()
+
+    ### Tidy multivariate logreg
     mv_lr_list[[i]] <- map(
-        .x = log_reg_list,
-        ~ tidy_mv_log_reg(mod_fit = .x)
+        .x = mv_log_reg_fits,
+        ~ tidy_mv_log_reg(
+            mod_fit = .x,
+            exp = exp
+        )
     )
     # Keep running
     print(paste("Completed multivariate", i, "of Three"))
 
     ### Join bv and mv together by outcome
-
     joined_model_list[[i]] <- c(
         bv_lr_list[i],
         mv_lr_list[[i]]
@@ -229,13 +229,6 @@ for (i in 1:3) {
     # Wheeeee more loops
     print(paste("Completed Loop", i, "of Three"))
 }
-
-### Merge tables
-### Join Models
-
-
-
-### Fix weird issue with label
 
 
 # Data Out _____________________________________________________________________
