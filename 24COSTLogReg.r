@@ -184,6 +184,8 @@ for (i in 1:3) {
         i == 1 ~ c(outcome_list[[2]], outcome_list[[3]]),
         i == 2 ~ c(outcome_list[[1]], outcome_list[[3]]),
         i == 3 ~ c(outcome_list[[1]], outcome_list[[2]])
+    # Tell me that you're still running
+    print(paste("Completed bivariate", i, "of Three"))
     # Fit multivariate logreg
     mv_log_reg_fits <- map(
         .x = mv_input,
@@ -213,6 +215,8 @@ for (i in 1:3) {
         .x = log_reg_list,
         ~ tidy_mv_log_reg(mod_fit = .x)
     )
+    # Keep running
+    print(paste("Completed multivariate", i, "of Three"))
 
     ### Join bv and mv together by outcome
 
@@ -225,6 +229,7 @@ for (i in 1:3) {
         tab_spanner = span_list[[i]]
     )
 
+    # Wheeeee more loops
     print(paste("Completed Loop", i, "of Three"))
 }
 
