@@ -104,35 +104,28 @@ cost <- read_csv(
     file = "IntData/cost.csv",
     col_types = "ffffn"
 )
-cesd <- read_csv(
-    file = "IntData/cesd.csv",
-    col_types = "ffffn"
-)
-ies <- read_csv(
-    file = "IntData/ies.csv",
-    col_types = "ffffn"
-)
-covid <- read_csv(
-    file = "IntData/covid.csv",
-    col_types = "ffffn"
-)
-fact <- read_csv(
-    file = "IntData/fact.csv",
-    col_types = "ffffn"
-)
-poms <- read_csv(
-    file = "IntData/poms.csv",
-    col_types = "ffffn"
-)
+# cesd <- read_csv(
+#     file = "IntData/cesd.csv",
+#     col_types = "ffffn"
+# )
+# ies <- read_csv(
+#     file = "IntData/ies.csv",
+#     col_types = "ffffn"
+# )
+# covid <- read_csv(
+#     file = "IntData/covid.csv",
+#     col_types = "ffffn"
+# )
+# fact <- read_csv(
+#     file = "IntData/fact.csv",
+#     col_types = "ffffn"
+# )
+# poms <- read_csv(
+#     file = "IntData/poms.csv",
+#     col_types = "ffffn"
+# )
 
-dat <- rbind(
-    cost,
-    cesd,
-    ies,
-    covid,
-    fact,
-    poms
-)
+dat <- cost
 
 ## Data analysis
 
