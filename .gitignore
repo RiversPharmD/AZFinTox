@@ -44,3 +44,6 @@ Literature/
 MeetingMinutes/
 Drafts/
 AnalyticNotes/
+
+# Abstracts
+Abstracts/*.rmd
