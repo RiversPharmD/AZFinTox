@@ -221,5 +221,5 @@ longitudinal
 path <- "OutData/"
 flextable::save_as_docx(
     as_flex_table(longitudinal),
-    path = paste0(path,"COST_desc_cohort_three_longitudinal.docx")
+    path = paste0(path, "COST_desc_cohort_three_longitudinal.docx")
 )
